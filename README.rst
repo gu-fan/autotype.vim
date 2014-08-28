@@ -6,25 +6,40 @@ Autotype.vim
 
     -- autotype.vim
 
+
+.. figure:: https://github.com/Rykka/github_things/raw/master/image/autotype.gif
+   :align: center
+
+   Auto typing in vim.
+
+
+Install
+=======
+
+Using Vundle or NeoBundle.
+
+``Bundle Rykka/autotype.vim``
+
+
 Useage
 ======
 
 
 AutoType [filename]
-   Start autotyping into current buffer with filename.
+   Start auto typing into current buffer with filename.
 
-   You can use Ctrl-C to Stop.
+   You can use ``Ctrl-C`` to stop.
 
 Options
 =======
 
 g:autotype_by_char
-    Autotyping with each char.
+    Auto typing by each char.
 
     default is ``1``
 
     If your computer is a bit slow, set it to 0, 
-    Then word will be use for typing.
+    Then word will be use by typing.
 
 
 g:autotype_char_sleep

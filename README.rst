@@ -1,6 +1,9 @@
 Autotype.vim
 ============
 
+:version: 0.9
+
+..
 
     Yes, Vim will type for you.
 

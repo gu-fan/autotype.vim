@@ -7,6 +7,12 @@ endif
 if !exists("g:autotype_line_sleep")
     let g:autotype_line_sleep = 400
 endif
+if !exists("g:autotype_char_sleep")
+    let g:autotype_char_sleep = 30
+endif
+if !exists("g:autotype_by_char")
+    let g:autotype_by_char = 1
+endif
 
 function! s:time() "{{{
     if has("reltime")
@@ -21,17 +27,23 @@ fun! s:auto_type(lines) abort "{{{
     for line in a:lines
         " >>> echo split("1 2 3",'[[:space:]]\+\zs')
         " ['1 ', '2 ', '3']
-        let words = split(line, '[[:space:]]\+\zs')
-        for word in words
-            call s:type(word)
-        endfor
+        if g:autotype_by_char
+            let chars = split(line, '.\zs')
+            for char in chars
+                call s:type(char, g:autotype_char_sleep)
+            endfor
+        else
+            let words = split(line, '[[:space:]]\+\zs')
+            for word in words
+                call s:type(word, g:autotype_word_sleep)
+            endfor
+        endif
         call s:type("\r", g:autotype_line_sleep)
     endfor
 endfun "}}}
 
-fun! s:type(str,...) abort "{{{
-    let t= a:0 ? a:1 : g:autotype_word_sleep
-    exe "sleep ".t."m"
+fun! s:type(str,t ) abort "{{{
+    exe "sleep ".a:t."m"
     exe "norm! a". a:str
     redraw
 
@@ -45,13 +57,14 @@ endfun "}}}
 fun! s:type_file(f) "{{{
     let o_t = s:time()
     try
-        echom '[AUTOTYPE] Started.'
+        echom '[AUTOTYPE] Typing Started.'
         call s:auto_type(readfile(a:f))
     catch /^Vim:Interrupt$/	" catch interrupts (CTRL-C)
-        echom '[AUTOTYPE] Stoped by user.'
+        echom '[AUTOTYPE] Typing Stoped by user.'
     endtry
     let e_t = s:time()
     let time = printf("%.4f",(e_t-o_t))
+    redraw
     echom "[AUTOTYPE] Typing finished. Using " . time . " seconds." 
 endfun "}}}
 

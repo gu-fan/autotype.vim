@@ -2,10 +2,10 @@ if !exists("g:autotype_cursor_aug")
     let g:autotype_cursor_aug = '*.rst,<buffer>'
 endif
 if !exists("g:autotype_word_sleep")
-    let g:autotype_word_sleep = 200
+    let g:autotype_word_sleep = 150
 endif
 if !exists("g:autotype_line_sleep")
-    let g:autotype_line_sleep = 500
+    let g:autotype_line_sleep = 400
 endif
 
 function! s:time() "{{{

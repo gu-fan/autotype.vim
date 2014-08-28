@@ -23,3 +23,12 @@ g:autotype_cursor_aug
 
     default is ``'*.rst,<buffer>'``
 
+g:autotype_word_sleep
+    Wait [m]ms after typing each word
+    
+    default is 150
+
+g:autotype_line_sleep
+    Wait [m]ms after typing each line
+
+    default is 400

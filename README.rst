@@ -224,8 +224,8 @@ g:autotype_syntax_type
            both in single line
         5. Inline Command is ``^_cmds``
 
-    You can define your tags
-    with following list of options::
+    You can define your own tag syntax if needed.
+    Following list of options can be changed::
         
             ["g:autotype_syn_cmd_bgn",  '{%'],
             ["g:autotype_syn_cmd_end",  '%}'],
@@ -237,13 +237,14 @@ g:autotype_syntax_type
             ["g:autotype_syn_var_end",  '}}'],
             ["g:autotype_syn_cmd_once", '^_'],
 
-    .. NOTE:: 
-        ``g:autotype_syntax_type``
-        should be set with another name
+    :.NOTE: ``g:autotype_syntax_type`` **SHOULD** be set
+            with a name other than 'jinja' or 'autotype'
 
-        And the value should be a pattern for matching.
+            And these options should be a pattern for matching.
 
-        e.g: '^' should be escaped as ``'\^'``
+            e.g: '^' should be escaped as ``'\^'``
+
+            See ':h pattern-atoms' for details
 
 g:autotype_file_directory
     The user directory for your autotype source files.

@@ -523,8 +523,8 @@ fun! autotype#type_file(f) "{{{
 endfun "}}}
 
 fun! autotype#type_line(line) "{{{
-    call s:type_line(a:line)
-    " exe "call s:type_line(".a:line.")"
+    " call s:type_line(a:line)
+    exe "call s:type_line(".a:line.")"
 endfun "}}}
 
 call autotype#init()

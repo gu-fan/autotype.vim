@@ -57,15 +57,9 @@ Syntax overview::
     
     You can do more things with command blocks.
     {@
-        ECHO 'Open A New Window'
-        sp new 
-
-        ECHO 'Insert Something'
-        TYPE Hello World
-
-        BLINk 'Go Back Now'
-
-        close
+    for i in range(10)
+        TYPE 'LINE '.i.'\r'
+    endfor
     @}
 
     ECHO AND HOTKEY {% ECHO 'Go to Start and type' | NORM! 0  | TYPE SOMETHING | NORM! $ %}
@@ -92,24 +86,22 @@ Help Commands
         Strings must using single quote ``'``.
 
     BLINK
-        A blink version of 'echo'
+        A blinking 'echo'
     NORMAL
         Like ':normal', And words like \<C-W> will be convert to that
         special character
 
-.. Note:: To use a special char for a command line input
+:Note: To use a special char for a command line input
+       like in 'i_CTRL-R_='. 
 
-          like in 'i_CTRL-R_='. 
+       You must put the special char directly.
+       Use ``i_Ctrl-V`` to input them, see vim help for details.
 
-          You must put the special char directly.
-
-          Use ``i_Ctrl-V``, see vim help for details.
-
-.. WARNING:: Behavior of using window/cmdline commands and mappings are not predictable.
+:WARNING: Behavior of using window/cmdline commands and mappings are not predictable.
              
-             Use it with caution,
+          Use it with caution,
 
-             And don't run other's autotype without checking.
+          And don't **EVER** run other's autotype file without checking.
 
 Options
 =======
@@ -118,11 +110,11 @@ g:autotype_speed
 
     Auto typing speed (char per second), default is ``30``
 
-    If you want a turtle, use '10'.
+    A turtle? use '10'.
 
-    If you want a swallow, use '400' or more.
+    A swallow? use '400' or more.
 
-    If you want a lighting, use '10000' or more.
+    Lighting? use '10000' or more.
 
 g:autotype_syntax_type
 
@@ -132,7 +124,7 @@ g:autotype_syntax_type
         3. Command block is '{@' and '@}',
            both in single line
         4. Inline Command is ``^_cmds``
-        5. To prevent tags, add a '!' before the tag.
+        5. To prevent exec of tags, add a '!' before the tag.
 
     Then the 'autotype'
         1. Command tag is '^[ cmds ^]'

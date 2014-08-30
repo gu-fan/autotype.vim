@@ -1,17 +1,25 @@
-{% BLINK 'Start a new file for testing' | new %}
+{% BLINK 'Start a new file for testing' | new %}Typing Some Normal Things
+{# One Line Comment #}
+{#
 
-Typing Some Normal Things
+    This 
+    Is 
+    A 
+    Multi
+    Line
+    Comments
 
+#}
 Do a Math: 2 + 2 = {{ 2 + 2 }}
 
 Current Time is {{ strftime('%c') }}
 
 A list {{ range(20)  }}
 
-ECHO And BLINK
+ECHO AND BLINK
 
 {% BLIN 'where is the cat' %}
-{% BLIN 'I don''t know' %}
+{% BLIN! 'I don''t know' %}
 
   ECHO AND HOTKEY {% ECHO 'Go to Start' | NORM! 0 | ECHO 'TYPE Something' | TYPE 'SOMETHING' | NORM! $ %}
 

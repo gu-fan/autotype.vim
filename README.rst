@@ -1,7 +1,7 @@
 Autotype.vim
 ============
 
-:version: 0.10.3
+:version: 0.10.4
 
 ..
 
@@ -64,6 +64,16 @@ vim commands are used directly in these tags.
 You can have a try with ``:AutoType syntax``
 
 Syntax overview::
+
+    Comments 
+
+    {# This is a line of Comments #}
+    Comments Block
+
+    {# Multiline 
+       Comments 
+       Can be used 
+       Too #}
 
     Variable Tag: 
     {{ range(10) + [1, 2, 3] }}
@@ -195,17 +205,19 @@ g:autotype_syntax_type
     Default is 'jinja'.
         1. Command tag is '{% cmds %}'
         2. Variable tag is '{{ var }}'
-        3. Command block is '{@' and '@}',
+        3. Comment tag is '{# var #}'
+        4. Command block is '{@' and '@}',
            both in single line
-        4. Inline Command is ``^_cmds``
-        5. To prevent exec of tags, add a '!' before the tag.
+        5. Inline Command is ``^_cmds``
+        6. To prevent exec of tags, add a '!' before the tag.
 
     Then the 'autotype'
         1. Command tag is '^[ cmds ^]'
-        2. Variable tag is '^{ var ^}'
-        3. Command block is '^[^[' and '^]^]',
+        2. Comment tag is '^< var ^>'
+        3. Variable tag is '^{ var ^}'
+        4. Command block is '^[^[' and '^]^]',
            both in single line
-        4. Inline Command is ``^_cmds``
+        5. Inline Command is ``^_cmds``
 
     You can define your tags
     with following list of options::
@@ -214,11 +226,15 @@ g:autotype_syntax_type
             ["g:autotype_syn_cmd_end",  '%}'],
             ["g:autotype_syn_cmds_bgn", '{@'],
             ["g:autotype_syn_cmds_end", '@}'],
+            ["g:autotype_syn_cmt_bgn",  '{#'],
+            ["g:autotype_syn_cmt_end",  '#}'],
             ["g:autotype_syn_var_bgn",  '{{'],
             ["g:autotype_syn_var_end",  '}}'],
             ["g:autotype_syn_cmd_once", '^_'],
 
-    .. NOTE:: You should set g:autotype_syntax_type with your name
+    .. NOTE:: 
+        ``g:autotype_syntax_type``
+        should be set with another name
 
         And the value should be a pattern for matching.
 

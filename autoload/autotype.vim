@@ -88,20 +88,24 @@ fun! autotype#init() "{{{
         let syn_opt = [
             \ ["g:autotype_syn_cmd_bgn",  '{%'],
             \ ["g:autotype_syn_cmd_end",  '%}'],
-            \ ["g:autotype_syn_cmds_bgn", '{@'],
-            \ ["g:autotype_syn_cmds_end", '@}'],
+            \ ["g:autotype_syn_cmt_bgn",  '{#'],
+            \ ["g:autotype_syn_cmt_end",  '#}'],
             \ ["g:autotype_syn_var_bgn",  '{{'],
             \ ["g:autotype_syn_var_end",  '}}'],
+            \ ["g:autotype_syn_cmds_bgn", '{@'],
+            \ ["g:autotype_syn_cmds_end", '@}'],
             \ ["g:autotype_syn_cmd_once", '^_'],
             \ ] 
     else
         let syn_opt = [
             \ ["g:autotype_syn_cmd_bgn", '\^\['],
             \ ["g:autotype_syn_cmd_end", '\^\]'],
-            \ ["g:autotype_syn_cmds_bgn", '\^\[\^\['],
-            \ ["g:autotype_syn_cmds_end", '\^\]\^\]'],
+            \ ["g:autotype_syn_cmt_bgn",  '\^<'],
+            \ ["g:autotype_syn_cmt_end",  '\^>'],
             \ ["g:autotype_syn_var_bgn", '\^[{]'],
             \ ["g:autotype_syn_var_end", '\^[}]'],
+            \ ["g:autotype_syn_cmds_bgn", '\^\[\^\['],
+            \ ["g:autotype_syn_cmds_end", '\^\]\^\]'],
             \ ["g:autotype_syn_cmd_once", '\^_'],
             \ ] 
     endif
@@ -117,8 +121,6 @@ fun! autotype#init() "{{{
             unlet val
         endfor
     endif
-
-
     
     
     " Generate Syntax patterns
@@ -136,6 +138,8 @@ fun! autotype#init() "{{{
     let s:cs_end = '^'.g:autotype_syn_cmds_end.'$'
     let s:v_bgn = '!\@<!'.g:autotype_syn_var_bgn
     let s:v_end = '!\@<!'.g:autotype_syn_var_end
+    let s:cm_bgn = '^\s*!\@<!'.g:autotype_syn_cmt_bgn
+    let s:cm_end = '!\@<!'. g:autotype_syn_cmt_end.'\s*$'
 
     " NOTE: include the \s in s:once to ignore input suffix whitespace
     let s:ptn_once = s:c_once .'\([^[:space:]]\+\)\(\s\|$\)'
@@ -152,6 +156,8 @@ fun! autotype#init() "{{{
     let s:s.cmd = s:c_bgn.'.\{-}'.s:c_end
     let s:s.cmds_bgn = s:cs_bgn
     let s:s.cmds_end = s:cs_end
+    let s:s.cmt_bgn = s:cm_bgn
+    let s:s.cmt_end = s:cm_end
 
 endfun "}}}
 
@@ -439,6 +445,7 @@ fun! s:type_lines(lines) abort "{{{
     " Each line are split by " " and typed
     let cmds = []
     let cmd_mode = 0
+    let cmt_mode = 0
     
     let end = len(a:lines)
     for i in range(end)
@@ -447,12 +454,13 @@ fun! s:type_lines(lines) abort "{{{
         " let o_t = s:time()
 
         " lines in ^[^[ are commands
-        if line =~ s:cs_bgn
+        if line =~ s:cs_bgn && cmd_mode == 0 && cmt_mode != 1
             let cmds = []
             let cmd_mode = 1
             continue
         endif
-        if line =~ s:cs_end
+
+        if line =~ s:cs_end && cmd_mode == 1
             call s:exe_cmds(cmds)
             let cmd_mode = 0
             continue
@@ -462,7 +470,25 @@ fun! s:type_lines(lines) abort "{{{
             call add(cmds, line)
             continue
         endif
-        
+
+        " lines in {# are comments, Just escape them
+        if line =~ s:cm_bgn && cmt_mode == 0 && cmd_mode != 1
+            " A one line comment
+            if line =~ s:cm_end
+                continue
+            endif
+            let cmt_mode = 1
+            continue
+        endif
+
+        if line =~ s:cm_end && cmt_mode == 1
+            let cmt_mode = 0
+            continue
+        endif
+
+        if cmt_mode == 1
+            continue
+        endif
 
         " let t_t = s:time()
         " let time = printf("%.4f",(t_t-e_t))

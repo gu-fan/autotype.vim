@@ -21,6 +21,9 @@ else
                 \."' end='". s:s.cmds_end . "'"
 endif
 
+exe "syn region autotypeCmt matchgroup=autotypeCmtPair start='" . s:s.cmt_bgn
+                \."' end='". s:s.cmt_end . "'"
+
 exe "syn match autotypeCmdPair '". s:s.cmd_p
             \."' contained"
 exe "syn match autotypeCmd '". s:s.cmd
@@ -35,6 +38,8 @@ exe "syn match autotypeOnce '". s:s.once ."'"
 
 hi def link autotypeCmd Statement
 hi def link autotypeCmdPair Delimiter
+hi def link autotypeCmt Comment
+hi def link autotypeCmtPair Comment
 hi def link autotypeCmds String
 hi def link autotypeVar Number
 hi def link autotypeVarPair Include

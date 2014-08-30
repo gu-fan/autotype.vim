@@ -87,9 +87,9 @@ Syntax overview::
     Then Paste 
     ^_P
 
-:NOTE: local variables can not be used.
+:NOTE: Variables are only valid in it's Tag/Block.
 
-       You must use 'b:var' or 'g:var' instead.
+       You can use 'b:var' or 'g:var' for a global variable.
 
 Help Commands
 -------------

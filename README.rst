@@ -35,8 +35,6 @@ AutoType [filename]
 
    You can use ``Ctrl-C`` to stop.
 
-
-
 Commands and variables
 ----------------------
 
@@ -51,26 +49,25 @@ You can have a try with ``:AutoType syntax.autotype``
 
 Syntax overview::
 
-    This is a variable: {{ g:autotype_speed }}
+    Insert a variable: {{ g:autotype_speed }}
 
     Insert a list: {{ range(10) }}
-    
-    You can do more things with command blocks.
+
+    ECHO AND HOTKEY 
+    {% ECHO 'Go to Start and type' | NORM! 0  | TYPE SOMETHING | NORM! $ %}
+
+    Do more things with command blocks.
     {@
     for i in range(10)
         TYPE 'LINE '.i.'\r'
     endfor
     @}
 
-    ECHO AND HOTKEY {% ECHO 'Go to Start and type' | NORM! 0  | TYPE SOMETHING | NORM! $ %}
-
-
     Yank 
     Something ^_yy
 
     Then Paste 
     ^_P
-    
 
 .. NOTE:: local variables can not be used.
 
@@ -110,11 +107,11 @@ g:autotype_speed
 
     Auto typing speed (char per second), default is ``30``
 
-    A turtle? use '10'.
+    Slow as turtle? use '5'.
 
-    A swallow? use '400' or more.
+    Fast as swallow? use '400' or more.
 
-    Lighting? use '10000' or more.
+    Blazing lighting? use '10000' or more.
 
 g:autotype_syntax_type
 

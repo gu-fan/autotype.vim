@@ -1,0 +1,32 @@
+{@
+    let b:a = 3 
+    let b:b = 4
+@}
+
+Do a Math: b:a + b:b = {{ b:a + b:b }}
+
+Current Time is {{ localtime() }}
+
+A list {{ range(20)  }}
+
+    ECHO AND HOTKEY {% ECHO 'Go to Start' | NORM! 0 | ECHO 'TYPE Something' | TYPE SOMETHING | NORM! $ %}
+
+{@
+ECHO 'Open A New Window'
+sp new 
+
+ECHO 'Insert Something'
+TYPE Hello World
+BLINK 'Go Back Now'
+close
+@}
+
+where is the cat: 
+{% ECHO 'I dont know' %}
+
+
+Yank 
+Something ^_yy
+
+Then Paste 
+^_P

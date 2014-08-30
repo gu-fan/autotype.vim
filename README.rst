@@ -79,14 +79,16 @@ Syntax overview::
     {{ range(10) + [1, 2, 3] }}
 
     Command Tag:
-    {% ECHO 'GO START' | NORM! 0  | TYPE SOMETHING | NORM! $ %}
+    {% ECHO 'GO START' | NORM! 0  | TYPE 'SOMETHING' | NORM! $ %}
 
     Command Blocks:
     {@
-        let l = input('Please input the line:')
-        for i in range(10)
-            TYPE 'LINE '.i.':'.l.'\r'
-        endfor
+    norm! 10k
+    for i in range(10)
+        norm! 0
+        INSERT 'LINE '.i.' '
+        norm! j
+    endfor
     @}
     
     Simple Command: (!^_xxx)

@@ -18,15 +18,18 @@ A list {{ range(20)  }}
 
 ECHO AND BLINK
 
-{% BLIN 'where is the cat' %}
-{% BLIN! 'I don''t know' %}
+M: {% BLIN 'where is the cat' %}
+K: {% BLIN! 'I don''t know' %}
 
   ECHO AND HOTKEY {% ECHO 'Go to Start' | NORM! 0 | ECHO 'APPEND Something' | APPEND 'SOMETHING' | NORM! $ %}
 
 Do more things with command blocks
 {@
+norm! 10k
 for i in range(10)
-    APPEND 'LINE '.i.'\r'
+    norm! 0
+    INSERT 'LINE '.i.' '
+    norm! j
 endfor
 @}
 

@@ -115,9 +115,11 @@ g:autotype_speed
 
     Auto typing speed (char per second), default is ``30``
 
-    If you want a slow one, use '10'.
+    If you want a turtle, use '10'.
 
-    If you want it quickly, use '400' or more.
+    If you want a swallow, use '400' or more.
+
+    If you want a lighting, use '10000' or more.
 
 g:autotype_syntax_type
 
@@ -175,3 +177,4 @@ TODO
 
 1. Make autotype auto write articles.
 2. Make autotype auto write programs.
+3. Make autotype find out 42.

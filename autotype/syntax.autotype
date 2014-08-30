@@ -1,46 +1,28 @@
 Typing Some Normal Things
 
-{@
-    let b:a = 3 
-    let b:b = 4
-@}
-
-Do a Math: b:a + b:b = {{ b:a + b:b }}
+Do a Math: 2 + 2 = {{ 2 + 2 }}
 
 Current Time is {{ strftime('%c') }}
 
 A list {{ range(20)  }}
-
-    ECHO AND HOTKEY {% ECHO 'Go to Start' | NORM! 0 | ECHO 'TYPE Something' | TYPE 'SOMETHING' | NORM! $ %}
-
-Do More things with command blocks
 
 Echo And BLINK
 
 {% ECHO 'where is the cat' %}
 {% BLIN 'I dont know' %}
 
+    ECHO AND HOTKEY {% ECHO 'Go to Start' | NORM! 0 | ECHO 'TYPE Something' | TYPE 'SOMETHING' | NORM! $ %}
+
+
+
+Do more things with command blocks
 {@
 for i in range(10)
-    TYPE i
+    TYPE 'LINE '.i.'\r'
 endfor
 @}
 
-
-
-Y
-aDo a Math: b:a + b:b = 7
-n
-kCurrent Time is 1409370250
-
-A list [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
-
- SOMETHING   ECHO AND HOTKEY 
-
-
-where is the cat: 
-
-
+Inline Commands 
 
 Yank 
 Something ^_yy

@@ -1,9 +1,6 @@
-{% new %}{% NORM :ECHO \<C-R>=3\<CR>\<CR> %}
-{% BLINK! 'Hello World' %}
-{@
-let a =3
-let b =3
-for i in range(10)
-    APPEND 'This is a test'. (a+b).'\r'
-endfor
-@}
+{% new %}
+ECHO {% ECHO 'Hello World '%}
+BLINK {% BLINK! 'Hello World '%}
+APPEND {% APPEND 'Hello World '%}
+INSERT {% INSERT! 'Hello World '%}^_$
+NORMAL{% NORM :BLINK! \<C-R>=123947829347322734972\<CR>\<CR> %}

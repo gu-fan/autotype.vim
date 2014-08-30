@@ -1,0 +1,9 @@
+{@
+    let a = 3
+    let b = 4
+    for i in range(10)
+        ECHO i
+        BLIN i+3
+        TYPE i.'<'.(a+b).'\r'
+    endfor
+@}

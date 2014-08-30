@@ -27,7 +27,7 @@ fun! autotype#init() "{{{
 
 
     for [opt, val] in def_list
-        call s:set(opt, val)
+        call s:default(opt, val)
         unlet val
     endfor
 
@@ -50,10 +50,10 @@ fun! autotype#init() "{{{
 
     let speed_opt = [
                 \ ["g:autotype_sleep_word", 2500/spd],
-                \ ["g:autotype_sleep_line", 10000/spd],
+                \ ["g:autotype_sleep_line", 8000/spd],
                 \ ["g:autotype_sleep_char", 700/spd],
                 \ ["g:autotype_sleep_cmd",  (10000/spd)+100],
-                \ ["g:autotype_sleep_echo", (30000/spd)+500],
+                \ ["g:autotype_sleep_echo", (20000/spd)+200],
                 \ ]
 
     " call extend(opts, speed_opt)
@@ -257,18 +257,24 @@ fun! s:type_cmd(cmd) "{{{
     redraw
     call s:sleep(g:autotype_sleep_cmd)
 endfun "}}}
+let s:tempfile = tempname()
 fun! s:exe_cmds(cmds) "{{{
     " cmds is a list of lines
-    " call writefile(a:cmds, s:tempfile)
-    " exe "so " s:tempfile
-    for cmd in a:cmds
+    call writefile(a:cmds, s:tempfile)
         try
-            exe cmd
+            exe "so " s:tempfile
         catch /^Vim\%((\a\+)\)\=:E/	" catch all Vim errors
             call s:echo("caught".v:exception,{'hl':'ErrorMsg'})
-            break
+            " break
         endtry
-    endfor
+    " for cmd in a:cmds
+    "     try
+    "         exe cmd
+    "     catch /^Vim\%((\a\+)\)\=:E/	" catch all Vim errors
+    "         call s:echo("caught".v:exception,{'hl':'ErrorMsg'})
+    "         break
+    "     endtry
+    " endfor
     redraw
     call s:sleep(g:autotype_sleep_word)
 endfun "}}}
@@ -518,6 +524,7 @@ endfun "}}}
 
 fun! autotype#type_line(line) "{{{
     call s:type_line(a:line)
+    " exe "call s:type_line(".a:line.")"
 endfun "}}}
 
 call autotype#init()

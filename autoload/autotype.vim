@@ -25,15 +25,16 @@ fun! autotype#init() "{{{
         \ ["g:autotype_file_directory", ''],
         \ ]
 
-    let s:fdirs = expand('<sfile>:p:h:h').'/autotype'
-    if g:autotype_file_directory != ''
-        let s:fdirs .= ','.expand(g:autotype_file_directory)
-    endif
 
     for [opt, val] in def_list
         call s:set(opt, val)
         unlet val
     endfor
+
+    let s:fdirs = expand('<sfile>:p:h:h').'/autotype'
+    if g:autotype_file_directory != ''
+        let s:fdirs .= ','.expand(g:autotype_file_directory)
+    endif
     
     let opts = []
     let spd = str2nr(g:autotype_speed)

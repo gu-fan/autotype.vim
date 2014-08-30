@@ -66,12 +66,10 @@ You can have a try with ``:AutoType syntax``
 Syntax overview::
 
     Comments 
-
     {# This is a line of Comments #}
-    Comments Block
 
-    {# Multiline 
-       Comments 
+    Comments Block
+    {# Multiline Comments 
        Can be used 
        Too #}
 
@@ -83,12 +81,13 @@ Syntax overview::
 
     Command Blocks:
     {@
-    norm! 10k
-    for i in range(10)
-        norm! 0
-        INSERT 'LINE '.i.' '
-        norm! j
-    endfor
+        " Insert line number for last 10 lines
+        norm! 10k
+        for i in range(10)
+            norm! 0
+            INSERT 'LINE '.i.' '
+            norm! j
+        endfor
     @}
     
     Simple Command: (!^_xxx)

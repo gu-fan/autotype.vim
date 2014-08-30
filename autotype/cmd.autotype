@@ -1,11 +1,9 @@
+{% new %}{% NORM :ECHO \<C-R>=3\<CR>\<CR> %}
+{% BLINK! 'Hello World' %}
 {@
-    let a = 3
-    let b = 4
-    let k = input('Please input your name')
-    ECHO 'Hello '.k
-    for i in range(10)
-        BLIN i+3
-        TYPE i.'<'.(a+b).'\r'
-    endfor
+let a =3
+let b =3
+for i in range(10)
+    APPEND 'This is a test'. (a+b).'\r'
+endfor
 @}
-

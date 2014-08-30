@@ -1,7 +1,7 @@
 Autotype.vim
 ============
 
-:version: 0.10.0
+:version: 0.10.3
 
 ..
 
@@ -37,16 +37,29 @@ AutoType [source_file]
    When source_file is omitted, All autotype file under '&rtp' will
    be found for you.
 
+Advancing
+=========
 
-Commands and variables
-----------------------
+Advancing usage.
 
-You can define commands and variables with specific tags.
-default is jinja like syntax, 
-and files with '.autotype' extensions will be recongized as 
-autotype filetype and highlighted.
+You can define commands and variables in specific tags.
 
-vim commands can be used directly in these tags.
+See below.
+
+:WARNING: Behavior of using window/cmdline commands and 
+          mappings are not predictable.
+
+          **USE THEM WITH CAUTION**
+
+          And **DON'T EVER** run other's autotype file 
+          without double checking.
+
+Syntax
+------
+
+The syntax default is jinja like, and files with '.autotype' extensions will be recongized as ``autotype`` filetype and highlighted.
+
+vim commands are used directly in these tags.
 
 You can have a try with ``:AutoType syntax``
 
@@ -74,36 +87,89 @@ Syntax overview::
     Then Paste 
     ^_P
 
-.. NOTE:: local variables can not be used.
+:NOTE: local variables can not be used.
 
-   You must use 'b:var' or 'g:var' instead.
-
+       You must use 'b:var' or 'g:var' instead.
 
 Help Commands
-    TYPE
-        TYPE things with current cursor position.
-    ECHO
-        Just like ':echo', And will show a longer time.
+-------------
 
-        Strings must using single quote ``'``.
+*commands that can be used both in tags and vim*
 
-    BLINK
-        A blinking 'echo'
-    NORMAL
-        Like ':normal', And words like \<C-W> will be convert to that
-        special character
+NORMAL[!] commands here
+    Like ':normal', And words like \<C-W> will be convert 
+    to that special character
 
-:Note: To use a special char for a command line input
-       like in 'i_CTRL-R_='. 
+    Add ``!`` to act as ``:normal!``
 
-       You must put the special char directly.
-       Use ``i_Ctrl-V`` to input them, see vim help for details.
+    example::
 
-:WARNING: Behavior of using window/cmdline commands and mappings are not predictable.
-             
-          Use them with caution,
+        NORM :ECHO 'Hello '.input('Your name:')\<CR>Auto\<CR>
+        " will produce:
+        " Hello Auto
 
-          And **DON'T EVER** run other's autotype file without checking.
+APPEND[!] 'text here'
+    Append things with current cursor position.
+    Act as ``a`` in normal mode
+
+    Add ``!`` and act as ``A``
+
+    example::
+
+        APPEND string(range(4))
+        " will append to current line with
+        " [0, 1, 2, 3]
+
+INSERT[!] 'text here'
+    Insert things with current cursor position.
+    Act as ``i`` in normal mode
+
+    Add ``!`` and act as ``A``
+
+ECHO[!] 'text here'
+    Echo things like ':echo', And will show for a longer time.
+
+    Add ``!`` to use ``ErrorMsg`` Highlight.
+
+    Echoed things will be shown in 'message'.
+
+BLINK[!] 'text here'
+    A blinking ':echo'
+
+    Add ``!`` to use ``ErrorMsg`` Highlight.
+
+:Note: **Bar**
+
+       They both receive the ``|`` command.
+
+       See ':h :command-bar'
+
+:Note: **Quotes**
+
+       In ``INSERT/APPEND/ECHO/BLINK``,
+       Strings passed must all using single quote ``'``.
+
+       In ``INSERT/APPEND``: works as double quoted,
+
+           Then you can use ``\r`` as a return.
+           To insert a ``\``, escape as ``\\``
+
+       In ``ECHO/BLINK``: works as single quoted.
+
+       See ':h expr-string'.
+
+:Note: **Special Characters**
+
+        In ``NORMAL``, Trigger special keys using ``\<C-XX>``
+
+        If you met something unexpected with command line input
+        action.
+
+        First check if enough ``\<CR>`` are used.
+
+        Then you can try typing raw Special charactes there.
+        See ``:h i_Ctrl-V`` for details.
+
 
 Options
 =======
@@ -188,11 +254,12 @@ And before, there are some ``misc`` things need to do.
 You can find one thing and contribute to it at github_
 
     1. Add local context support for commands and variables
-    2. Make input with Special Keys more workable.
-    3. Make Literal-String and Constant-String always working.
-    4. Make more autotype sources.
-    5. Make it more stable and useful.
-    6. Helping others.
+    2. Add Comment Tag And Block And Syntax.
+    3. Make input with Special Keys more workable.
+    4. Make Literal-String and Constant-String always working.
+    5. Make more autotype sources.
+    6. Make it more stable and useful.
+    7. Helping others.
 
 
 .. _github: https://github.com/Rykka/autotype.vim

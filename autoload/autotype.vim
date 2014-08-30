@@ -177,37 +177,49 @@ fun! s:echo(str,...) "{{{
     let t = a:0 ? get(a:1, 't', g:autotype_sleep_echo) 
                 \ : g:autotype_sleep_echo
 
-    echom '[AUTOTYPE]'.a:str
-    redraw
 
     exe "echohl ". hl
+    echom '[AUTOTYPE] '.a:str
+    redraw
     echo '[AUTOTYPE]'
     echohl Normal
-    echon a:str
+    echon ' '.a:str
     redraw
     call s:sleep(t)
     
 endfun "}}}
 
-fun! s:type(str, t) abort "{{{
-    noa exe "norm! a". a:str
-    
-    " let @z =a:str
-    " noa exe 'norm! "zp'
-    "
-    " let line = getline('.').a:str
-    " call setline(line('.'), line)
-    
+fun! s:append(bang, str, ...) abort "{{{
+
+    if a:bang == '!'
+        noa exe "norm! A". a:str
+    else
+        noa exe "norm! a". a:str
+    endif
 
     for au_ptn in split(g:autotype_cursor_aug, ',')
-        " doau CursorMoved,CursorMovedI *.rst
-        " doau CursorMoved,CursorMovedI <buffer>
         sil! noa exec "doau CursorMoved ". au_ptn
     endfor
 
     redraw
-    call s:sleep(a:t)
 
+    call s:sleep(a:0 ? a:1 : g:autotype_sleep_char )
+endfun "}}}
+fun! s:insert(bang, str, ...) abort "{{{
+
+    if a:bang == '!'
+        noa exe "norm! I". a:str
+    else
+        noa exe "norm! i". a:str
+    endif
+    
+    for au_ptn in split(g:autotype_cursor_aug, ',')
+        sil! noa exec "doau CursorMoved ". au_ptn
+    endfor
+
+    redraw
+
+    call s:sleep(a:0 ? a:1 : g:autotype_sleep_char )
 endfun "}}}
 
 fun! s:type_norm(line) "{{{
@@ -218,15 +230,15 @@ fun! s:type_norm(line) "{{{
     if g:autotype_skip_by == 'char'
         let chars = split(line, '.\zs')
         for char in chars
-            call s:type(char, g:autotype_sleep_char)
+            call s:append('', char, g:autotype_sleep_char)
         endfor
     elseif g:autotype_skip_by == 'word'
         let words = split(line, '[[:space:]]\+\zs')
         for word in words
-            call s:type(word, g:autotype_sleep_word)
+            call s:append('', word, g:autotype_sleep_word)
         endfor
     else 
-        call s:type(line, g:autotype_sleep_line)
+        call s:append('', line, g:autotype_sleep_line)
     endif
 endfun "}}}
 
@@ -275,7 +287,6 @@ fun! s:sort_parts(a, b) "{{{
     let b = a:b
     return a['idx']== b['idx'] ? 0 : a['idx'] > b['idx'] ? 1 : -1
 endfun "}}}
-
 
 fun! s:parse_line(line) "{{{
     " parse each line and return the parsing object.
@@ -460,7 +471,7 @@ fun! s:type_lines(lines) abort "{{{
         call s:type_line(line)
 
         if i != (end-1)
-            call s:type("\r", g:autotype_sleep_word)
+            call s:append('', "\r", g:autotype_sleep_word)
         endif
 
     endfor
@@ -521,45 +532,56 @@ fun! autotype#type_file(f) "{{{
                     \{'hl': "MoreMsg", 't':0})
 endfun "}}}
 
-fun! autotype#type_line(line) "{{{
-    " call s:type_line(a:line)
-    exe "call s:type_line(".a:line.")"
+fun! autotype#append(bang, line) "{{{
+    " NOTE: Use line as Constant-String.
+    " Wrap a:bang, and a:line with '"'
+    " Then "\r" will be expanded to special chars 'Enter'
+    
+    exe 'call s:append("'.a:bang.'","'.a:line.'")'
 endfun "}}}
-fun! autotype#blink(str,...) "{{{
-    let hl = a:0 ? get(a:1, 'hl', 'ModeMsg') : 'ModeMsg'
-    let t = a:0 ? get(a:1, 't', g:autotype_sleep_echo)
-                \ : g:autotype_sleep_echo
-    for i in range(str2nr(t)/150)
+fun! autotype#insert(bang, line) "{{{
+    exe 'call s:insert("'.a:bang.'","'.a:line.'")'
+endfun "}}}
+fun! autotype#blink(bang, str,...) "{{{
+    " blinking a:str as plain text.
+    if a:bang == '!'
+        let hl = 'ErrorMsg'
+    else
+        let hl = 'ModeMsg'
+    endif
 
-        echohl  Normal
-        echo '[AUTOTYPE]'
-        echohl Normal
-        exe "echon ".a:str
-        redraw
-        call s:sleep(100)
+    exe "echohl ". hl | echom '[AUTOTYPE] '.a:str | redraw
+    for i in range(str2nr(g:autotype_sleep_echo)/160)
+        echohl Normal | echo '[AUTOTYPE]'
+        echon ' '.a:str | redraw
+        call s:sleep(110)
 
-        exe "echohl ". hl
-        echo '[AUTOTYPE]'
-        echohl Normal
-        exe "echon ".a:str
-        redraw
-        call s:sleep(100)
+        exe "echohl ". hl | echo '[AUTOTYPE]'
+        echohl Normal | echon ' '.a:str | redraw
+        call s:sleep(110)
     endfor
 endfun "}}}
-fun! autotype#echo(str,...) "{{{
-    let hl = a:0 ? get(a:1, 'hl', 'ModeMsg') : 'ModeMsg'
-    let t = a:0 ? get(a:1, 't', g:autotype_sleep_echo) 
-                \ : g:autotype_sleep_echo
-    exe "echohl ". hl
-    echo '[AUTOTYPE]'
-    echohl Normal
-    " NOTE: use exe with q-args. works like echo.
-    exe "echon ".a:str
+fun! autotype#echo(bang, str) "{{{
+    " echo a:str as plain text.
+    " message are added.
+    
+    if a:bang == '!'
+        let hl = 'ErrorMsg'
+    else
+        let hl = 'ModeMsg'
+    endif
+
+    exe "echohl ". hl | echom '[AUTOTYPE] '.a:str | redraw
+    echo '[AUTOTYPE]' | echohl Normal | echon ' '.a:str
     redraw
-    call s:sleep(t)
+
+    call s:sleep(g:autotype_sleep_echo)
+
 endfun "}}}
 fun! autotype#normal(bang, str) "{{{
-    " Wrap the string with "" for "\<C-W>" keys
+    " Wrap the string with "" 
+    " Act as ``exe "norm \<c-w>\<c-w>"``
+    
     exe 'exe "norm'.a:bang.' '.a:str.'"'
 endfun "}}}
 fun! autotype#atp_spd(str) "{{{
@@ -567,7 +589,7 @@ fun! autotype#atp_spd(str) "{{{
         let g:autotype_speed = a:str
     else
         let _l = split('turtle,mankind,swift,lighting', ',')
-        let k = inputlist(['[AutoType] Choose a Speed:']+_l)
+        let k = inputlist(['[AutoType] Choose a Speed, Current:'.g:autotype_speed]+_l)
         if k != 0
             let g:autotype_speed = _l[k-1]
         else

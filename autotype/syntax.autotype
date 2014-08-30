@@ -11,7 +11,7 @@ A list {{ range(20)  }}
 ECHO And BLINK
 
 {% BLIN 'where is the cat' %}
-{% BLIN 'I dont know' %}
+{% BLIN 'I don''t know' %}
 
   ECHO AND HOTKEY {% ECHO 'Go to Start' | NORM! 0 | ECHO 'TYPE Something' | TYPE 'SOMETHING' | NORM! $ %}
 

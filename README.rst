@@ -167,7 +167,7 @@ BLINK[!] 'text here'
 
         First check if enough ``\<CR>`` are used.
 
-        Then you can try typing raw Special charactes there.
+        Then you can try typing raw special charactes there.
         See ``:h i_Ctrl-V`` for details.
 
 
@@ -224,16 +224,16 @@ g:autotype_syntax_type
 
         And the value should be a pattern for matching.
 
-        for example: '^' should be escaped as ``'\^'``
+        e.g: '^' should be escaped as ``'\^'``
 
 g:autotype_file_directory
     The user directory for your autotype source files.
 
-    Default is ''.
+    Default is ``''``.
 
-    The ``:AutoType`` will search in this path
-    and the ``&rtp/autotype/`` directory for All '\*.autotype' file
-    to match the filename.
+    The ``:AutoType source_file`` will search file in current dir,
+    then in this path and the ``&rtp/autotype/`` directory
+    for all '\*.autotype' file to match the filename.
 
     You can add multiple paths seperated with comma ','.
 

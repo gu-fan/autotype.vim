@@ -148,7 +148,7 @@ g:autotype_syntax_type
 
         And the value should be a pattern for matching.
 
-        for example: '^' should be escaped as '\^'
+        for example: '^' should be escaped as ``'\^'``
 
 g:autotype_file_directory
     The user directory for your autotype files.

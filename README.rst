@@ -5,7 +5,7 @@ Autotype.vim
 
 ..
 
-    Yes, Vim will type for you.
+    Yes, Vim will work for you.
 
     -- autotype.vim
 
@@ -38,7 +38,9 @@ Commands and variables
 ----------------------
 
 You can define commands and variables with specific tags.
-default is jinja like syntax
+default is jinja like syntax, 
+and files with '.autotype' extensions will be recongized as 
+autotype filetype and highlighted.
 
 vim commands can be used directly in these tags.
 
@@ -168,3 +170,8 @@ g:autotype_cursor_aug
 
     default is ``'*.rst,<buffer>'``
 
+TODO
+====
+
+1. Make autotype auto write articles.
+2. Make autotype auto write programs.

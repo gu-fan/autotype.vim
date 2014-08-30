@@ -136,6 +136,10 @@ INSERT[!] 'text here'
 
     Add ``!`` and act as ``I``
 
+TYPE[!] 'text here'
+    Same as ``APPEND``.
+
+
 ECHO[!] 'text here'
     Echo things like ':echo', And will show for a longer time.
 

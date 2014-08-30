@@ -21,12 +21,12 @@ ECHO AND BLINK
 {% BLIN 'where is the cat' %}
 {% BLIN! 'I don''t know' %}
 
-  ECHO AND HOTKEY {% ECHO 'Go to Start' | NORM! 0 | ECHO 'TYPE Something' | TYPE 'SOMETHING' | NORM! $ %}
+  ECHO AND HOTKEY {% ECHO 'Go to Start' | NORM! 0 | ECHO 'APPEND Something' | APPEND 'SOMETHING' | NORM! $ %}
 
 Do more things with command blocks
 {@
 for i in range(10)
-    TYPE 'LINE '.i.'\r'
+    APPEND 'LINE '.i.'\r'
 endfor
 @}
 

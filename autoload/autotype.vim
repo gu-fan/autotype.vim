@@ -1,6 +1,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:tempfile = tempname()
 function! s:default(option,value) "{{{
     if !exists(a:option)
         let {a:option} = a:value
@@ -31,14 +32,23 @@ fun! autotype#init() "{{{
         unlet val
     endfor
 
-    let s:fdirs = expand('<sfile>:p:h:h').'/autotype'
-    if g:autotype_file_directory != ''
-        let s:fdirs .= ','.expand(g:autotype_file_directory)
-    endif
-    
     let opts = []
-    let spd = str2nr(g:autotype_speed)
-    let spd = spd != 0 ? spd : 30
+
+    " Basic:
+    " Turtle/ManKind/Swift/Lighting
+    
+    if g:autotype_speed == 'mankind'
+        let speed = 30
+    elseif g:autotype_speed == 'turtle'
+        let speed = 2
+    elseif g:autotype_speed == 'swift'
+        let speed = 400
+    elseif g:autotype_speed == 'lighting'
+        let speed = 30000
+    else
+        let speed = str2nr(g:autotype_speed)
+    endif
+    let spd = speed <= 0 ? 1 : speed
 
     if spd <= 400 
         call s:set("g:autotype_skip_by", 'char')
@@ -48,12 +58,22 @@ fun! autotype#init() "{{{
         call s:set("g:autotype_skip_by", 'line')
     endif
 
+    " Do some math.
+    "
+    " Char sleep_ time is 1000/spd
+    " Word is 5 time of it
+    " Line is 4 Time of word
+    " CMD is 4 Time of Line
+    " ECHO is 2 Time of Command
+
+    " TODO 
+    " tune speed for each level
     let speed_opt = [
-                \ ["g:autotype_sleep_word", 2500/spd],
-                \ ["g:autotype_sleep_line", 8000/spd],
+                \ ["g:autotype_sleep_word", 2500/(spd+5)],
+                \ ["g:autotype_sleep_line", 8000/(spd+9)],
                 \ ["g:autotype_sleep_char", 700/spd],
-                \ ["g:autotype_sleep_cmd",  (10000/spd)+100],
-                \ ["g:autotype_sleep_echo", (20000/spd)+200],
+                \ ["g:autotype_sleep_cmd",  (30000/(spd+25))],
+                \ ["g:autotype_sleep_echo", (75000/(spd+20))],
                 \ ]
 
     " call extend(opts, speed_opt)
@@ -150,39 +170,6 @@ fun! s:sleep(t) "{{{
     endif
     exe "sl ".t."m"
 endfun "}}}
-fun! autotype#blink(str,...) "{{{
-    let hl = a:0 ? get(a:1, 'hl', 'ModeMsg') : 'ModeMsg'
-    let t = a:0 ? get(a:1, 't', g:autotype_sleep_echo)
-                \ : g:autotype_sleep_echo
-    for i in range(str2nr(t)/150)
-
-        echohl  Normal
-        echo '[AUTOTYPE]'
-        echohl Normal
-        exe "echon ".a:str
-        redraw
-        call s:sleep(100)
-
-        exe "echohl ". hl
-        echo '[AUTOTYPE]'
-        echohl Normal
-        exe "echon ".a:str
-        redraw
-        call s:sleep(100)
-    endfor
-endfun "}}}
-fun! autotype#echo(str,...) "{{{
-    let hl = a:0 ? get(a:1, 'hl', 'ModeMsg') : 'ModeMsg'
-    let t = a:0 ? get(a:1, 't', g:autotype_sleep_echo) 
-                \ : g:autotype_sleep_echo
-    exe "echohl ". hl
-    echo '[AUTOTYPE]'
-    echohl Normal
-    " NOTE: use exe with q-args. works like echo.
-    exe "echon ".a:str
-    redraw
-    call s:sleep(t)
-endfun "}}}
 fun! s:echo(str,...) "{{{
     " Script use this version
 
@@ -200,10 +187,6 @@ fun! s:echo(str,...) "{{{
     redraw
     call s:sleep(t)
     
-endfun "}}}
-fun! autotype#normal(bang, str) "{{{
-    " Wrap the string with "" for "\<C-W>" keys
-    exe 'exe "norm'.a:bang.' '.a:str.'"'
 endfun "}}}
 
 fun! s:type(str, t) abort "{{{
@@ -257,7 +240,6 @@ fun! s:type_cmd(cmd) "{{{
     redraw
     call s:sleep(g:autotype_sleep_cmd)
 endfun "}}}
-let s:tempfile = tempname()
 fun! s:exe_cmds(cmds) "{{{
     " cmds is a list of lines
     call writefile(a:cmds, s:tempfile)
@@ -485,29 +467,46 @@ fun! s:type_lines(lines) abort "{{{
 endfun "}}}
 
 fun! autotype#type_file(f) "{{{
+
     call autotype#init()
 
-    let o_t = s:time()
 
     let f = a:f
+    let o_t = s:time()
+
     try
-        call s:echo("Typing started.",
-                    \{'hl': "MoreMsg", 't':0})
 
         if filereadable(f)
+            call s:echo("Typing started.", {'hl': "MoreMsg", 't':0})
             call s:type_lines(readfile(f))
+
         else
-            let files = split(globpath(s:fdirs, f),'\n')
+            " Try to find an autotype file:
+            " with autotype extension and under  &rtp
+
+            if f == '' 
+                let f = '*.autotype'
+            elseif fnamemodify(f,':e') == ''
+                let f = f.'.autotype'
+            endif
+
+            let files = split(globpath(g:autotype_file_directory, f),'\n')
+            let files += split(globpath(&rtp, 'autotype/'.f),'\n')
+
             if empty(files)
                 call s:echo("File Not Found, Stop", {'hl': "WarningMsg",'t':1})
                 return
             elseif len(files) > 1
-                let i = inputlist(['Choose autotyping source:']+files)
+                let i = inputlist(['[AutoType] Choose an autotyping source:']+files)
                 if i == 0
                     call s:echo("No File Choosed, Stop", {'hl': "WarningMsg",'t':1})
+                    return
+                else
+                    call s:echo("Typing started.",{'hl': "MoreMsg", 't':0})
+                    call s:type_lines(readfile(files[i-1]))
                 endif
-                call s:type_lines(readfile(files[i-1]))
             else
+                call s:echo("Typing started.", {'hl': "MoreMsg", 't':0})
                 call s:type_lines(readfile(files[0]))
             endif
             
@@ -526,6 +525,59 @@ fun! autotype#type_line(line) "{{{
     " call s:type_line(a:line)
     exe "call s:type_line(".a:line.")"
 endfun "}}}
+fun! autotype#blink(str,...) "{{{
+    let hl = a:0 ? get(a:1, 'hl', 'ModeMsg') : 'ModeMsg'
+    let t = a:0 ? get(a:1, 't', g:autotype_sleep_echo)
+                \ : g:autotype_sleep_echo
+    for i in range(str2nr(t)/150)
+
+        echohl  Normal
+        echo '[AUTOTYPE]'
+        echohl Normal
+        exe "echon ".a:str
+        redraw
+        call s:sleep(100)
+
+        exe "echohl ". hl
+        echo '[AUTOTYPE]'
+        echohl Normal
+        exe "echon ".a:str
+        redraw
+        call s:sleep(100)
+    endfor
+endfun "}}}
+fun! autotype#echo(str,...) "{{{
+    let hl = a:0 ? get(a:1, 'hl', 'ModeMsg') : 'ModeMsg'
+    let t = a:0 ? get(a:1, 't', g:autotype_sleep_echo) 
+                \ : g:autotype_sleep_echo
+    exe "echohl ". hl
+    echo '[AUTOTYPE]'
+    echohl Normal
+    " NOTE: use exe with q-args. works like echo.
+    exe "echon ".a:str
+    redraw
+    call s:sleep(t)
+endfun "}}}
+fun! autotype#normal(bang, str) "{{{
+    " Wrap the string with "" for "\<C-W>" keys
+    exe 'exe "norm'.a:bang.' '.a:str.'"'
+endfun "}}}
+fun! autotype#atp_spd(str) "{{{
+    if a:str != ''
+        let g:autotype_speed = a:str
+    else
+        let _l = split('turtle,mankind,swift,lighting', ',')
+        let k = inputlist(['[AutoType] Choose a Speed:']+_l)
+        if k != 0
+            let g:autotype_speed = _l[k-1]
+        else
+            call s:echo('Abort Speed setup.',{'t':0})
+            return
+        endif
+    endif
+    call s:echo('Speed Set to "'.g:autotype_speed.'"',{'t':0})
+endfun "}}}
+
 
 call autotype#init()
 

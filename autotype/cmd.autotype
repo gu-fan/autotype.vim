@@ -1,9 +1,11 @@
 {@
     let a = 3
     let b = 4
+    let k = input('Please input your name')
+    ECHO 'Hello '.k
     for i in range(10)
-        ECHO i
         BLIN i+3
         TYPE i.'<'.(a+b).'\r'
     endfor
 @}
+

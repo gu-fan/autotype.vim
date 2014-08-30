@@ -15,25 +15,28 @@ Auto typing in vim.
 .. figure:: https://github.com/Rykka/github_things/raw/master/image/autotype.gif
        :align: center
 
-
 Install
 =======
 
 Using Vundle or NeoBundle.
 
-``Bundle Rykka/autotype.vim``
+``Bundle 'Rykka/autotype.vim'``
 
 
 Useage
 ======
 
 
-AutoType [filename]
-   Start auto typing filename into current buffer with filename.
+AutoType [source_file]
+   Start auto typing source_file into current buffer with filename.
 
    All contents of that file will be typed into current buffer.
 
    You can use ``Ctrl-C`` to stop.
+
+   When source_file is omitted, All autotype file under '&rtp' will
+   be found for you.
+
 
 Commands and variables
 ----------------------
@@ -45,23 +48,25 @@ autotype filetype and highlighted.
 
 vim commands can be used directly in these tags.
 
-You can have a try with ``:AutoType syntax.autotype``
+You can have a try with ``:AutoType syntax``
 
 Syntax overview::
 
-    Insert a variable: {{ g:autotype_speed }}
+    Variable Tag: 
+    {{ range(10) + [1, 2, 3] }}
 
-    Insert a list: {{ range(10) }}
+    Command Tag:
+    {% ECHO 'GO START' | NORM! 0  | TYPE SOMETHING | NORM! $ %}
 
-    ECHO AND HOTKEY 
-    {% ECHO 'Go to Start and type' | NORM! 0  | TYPE SOMETHING | NORM! $ %}
-
-    Do more things with command blocks.
+    Command Blocks:
     {@
-    for i in range(10)
-        TYPE 'LINE '.i.'\r'
-    endfor
+        let l = input('Please input the line:')
+        for i in range(10)
+            TYPE 'LINE '.i.':'.l.'\r'
+        endfor
     @}
+    
+    Simple Command: (!^_xxx)
 
     Yank 
     Something ^_yy
@@ -96,22 +101,30 @@ Help Commands
 
 :WARNING: Behavior of using window/cmdline commands and mappings are not predictable.
              
-          Use it with caution,
+          Use them with caution,
 
-          And don't **EVER** run other's autotype file without checking.
+          And **DON'T EVER** run other's autotype file without checking.
 
 Options
 =======
 
 g:autotype_speed
 
-    Auto typing speed (char per second), default is ``30``
+    Auto typing speed (char per second), range from (1 to more),
+    default is ``30``, which is mankind.
 
-    Slow as turtle? use '5'.
+    A Slow turtle? use '2'.
 
-    Fast as swallow? use '400' or more.
+    Fast as swift? use '400'.
 
-    Blazing lighting? use '10000' or more.
+    Blazing lighting? use '30000' or more.
+
+    You can set it with one of 
+    ``turtle,mankind,swift,lighting``,
+
+    Then it's at the relevent speed.
+
+    ``:AtpSpd`` can be used as a quick speed setup.
 
 g:autotype_syntax_type
 
@@ -148,12 +161,13 @@ g:autotype_syntax_type
         for example: '^' should be escaped as ``'\^'``
 
 g:autotype_file_directory
-    The user directory for your autotype files.
+    The user directory for your autotype source files.
 
     Default is ''.
 
-    Then ``:AutoType`` will search in local path
-    and the ``<autotype.vim>/autotype/`` directory.
+    The ``:AutoType`` will search in this path
+    and the ``&rtp/autotype/`` directory for All '\*.autotype' file
+    to match the filename.
 
     You can add multiple paths seperated with comma ','.
 
@@ -169,3 +183,16 @@ TODO
 
 1. Make autotype auto write articles.
 2. Make autotype auto write programs.
+
+And before, there are some ``misc`` things need to do.
+You can find one thing and contribute to it at github_
+
+    1. Add local context support for commands and variables
+    2. Make input with Special Keys more workable.
+    3. Make Literal-String and Constant-String always working.
+    4. Make more autotype sources.
+    5. Make it more stable and useful.
+    6. Helping others.
+
+
+.. _github: https://github.com/Rykka/autotype.vim

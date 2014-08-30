@@ -175,7 +175,6 @@ Options
 =======
 
 g:autotype_speed
-
     Auto typing speed (char per second), range from (1 to more),
     default is ``30``, which is mankind.
 
@@ -193,7 +192,6 @@ g:autotype_speed
     ``:AtpSpd`` can be used as a quick speed setup.
 
 g:autotype_syntax_type
-
     Default is 'jinja'.
         1. Command tag is '{% cmds %}'
         2. Variable tag is '{{ var }}'

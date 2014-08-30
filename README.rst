@@ -124,7 +124,7 @@ INSERT[!] 'text here'
     Insert things with current cursor position.
     Act as ``i`` in normal mode
 
-    Add ``!`` and act as ``A``
+    Add ``!`` and act as ``I``
 
 ECHO[!] 'text here'
     Echo things like ':echo', And will show for a longer time.

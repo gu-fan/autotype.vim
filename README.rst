@@ -12,6 +12,9 @@ Autotype.vim
 
 Auto typing in vim.
 
+.. figure:: https://github.com/Rykka/github_things/raw/master/image/autotype.gif
+       :align: center
+
 
 Install
 =======
@@ -177,4 +180,3 @@ TODO
 
 1. Make autotype auto write articles.
 2. Make autotype auto write programs.
-3. Make autotype find out 42.

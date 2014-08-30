@@ -100,7 +100,11 @@ Help Commands
 
           Use ``i_Ctrl-V``, see vim help for details.
 
+.. WARNING:: Behavir of using window/cmdline commands and mappings are not predictable.
+             
+             Use it with caution,
 
+             And don't run other autotype without checking.
 
 Options
 =======

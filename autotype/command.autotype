@@ -4,5 +4,5 @@ ECHO {% ECHO 'Hello World '%}
 BLINK {% BLINK! 'Hello World '%}
 APPEND {% APPEND 'Hello World '%}
 INSERT {% INSERT! 'Hello World '%}^_$
-NORMAL{% NORM :BLINK! \<C-R>=123947829347322734972\<CR>\<CR> %}
+NORMAL {% NORM :BLINK 'Hello '.input('name')\<CR>World\<CR> %}
 {%- bw! -%}

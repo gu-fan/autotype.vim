@@ -157,8 +157,9 @@ Syntax overview::
           CORRECT
           POSITION
 
-      See The effects with ``AutoType position``
-      File at ``autotype/position.autotype``
+      See The effects with ``AutoType position``.
+
+      File is at ``autotype/position.autotype``
 
 Variables
 ---------

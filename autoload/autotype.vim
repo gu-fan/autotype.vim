@@ -528,6 +528,7 @@ fun! s:type_lines(lines) abort "{{{
             else
                 let cmd_type = 'vim'
             endif
+            let cmd_indent = matchstr(line, '^\s*')
             let cmd_mode = 1
             continue
         endif
@@ -542,6 +543,8 @@ fun! s:type_lines(lines) abort "{{{
         endif
 
         if cmd_mode == 1
+            " remove indent for python block
+            let line = substitute(line, '^'.cmd_indent, '','')
             call add(cmds, line)
             continue
         endif

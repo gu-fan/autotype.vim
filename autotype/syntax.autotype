@@ -57,7 +57,7 @@ Also some help commands like ``ECHO|NORMAL|INSERT`` are defined.
 
 ECHO AND BLINK
     Mik: Kim, Where is the cat?
-    {%- BLIN  {'char':'Mik', 'arg':['kim', '  kim!!' , 'where is the cat?']} %}
+    {%- BLIN  {'char':'Mik', 'arg':['Kim', '  KIM!!' , 'Where is the cat?']} %}
 
     Kim: Emmm.... I don't know.
     {%- BLIN! {'char':'Kim', 'arg':['Emm.', 'Emm...'  , 'I don''t know'],'hl':'PreProc'} %}
@@ -104,16 +104,17 @@ Command Blocks
             ECHO 'DONE'
         @}
     
-    Python Code Blocks can be used too
+    Python can be used in pyhon blocks
     {@ python
     # You can access local variables with _
     print _['__file__']
 
     # assign a new valiable.
-    _['k'] = 150
+    import os
+    _['os_name'] = os.name
     @}
 
-    python variable k: {{ k }}
+    Os name: {{ os_name }}
 
 Simple commands 
     Simple command are like ``!^_xxx``
@@ -159,7 +160,7 @@ Also some context variables can be used
 
     Total Elapsed Time: {{ localtime() - __time__ }} sec.
 
-    See README for details.
+    See README for more details.
     
 {% BLINK 'Syntax Overview finished, Do Some Clean Up' %}
 {%- set noscb -%}

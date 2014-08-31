@@ -1,30 +1,47 @@
-{# {%- new syn_test -%} #}
-{# {%- setf rst -%} #}
-{# {%- setlocal inde='' -%} #}
-{# {%- setlocal indk='' -%} #}
-{# {@ #}
-{#     if exists(":InstantRst") #}
-{#         ECHO 'YES' #}
-{#         InstantRst! #}
-{#     else #}
-{#         ECHO 'NO' #}
-{#     endif #}
-{# @} #}
+{@
+    ECHO 'Do Some Preparation'
+
+    if __file__ == __source__
+        let _scb = 1 
+        norm! gg
+        set scb 
+        new
+        set scb
+    else
+        new
+    endif
+
+    norm! ggVGd
+    setlocal inde=''
+    setlocal indk=''
+    
+    if exists(":InstantRst")
+        ECHO 'View with InstantRst'
+        InstantRst
+    endif
+@}
+
 AutoType Syntax Overview
 ========================
 
+^_ggddG$
 This is syntax.autotype for autotype's syntax. 
 
 Normal
 ------
 
-Normal Text are typed plainly.
-
+Normal Text are typed directly.
+    Works as insert them one by one.
+    
 Comments
 --------
 
 Things in Comment Tags ``{#`` and ``#}`` are comments
+
 They should be the first/last char of a line.
+    
+    !{# This is a comment #}
+    (! are used to prevent parsing here)
 
     {#  This is a comments block
         Comments here
@@ -34,26 +51,31 @@ Commands
 --------
 
 Things inbetween ``!{%`` and ``!%}`` are commands.
-(use ! to prevent parsing as commands)
 
 It will trigger Vim Commands in place.
 
-Also some help commands are defined.
+Also some help commands like ``ECHO|NORMAL|INSERT`` are defined.
 
 ECHO AND BLINK
-    Mik: {% ECHO  ['Kim', '  Kim!!' , 'Where is the cat?']%}
+    Mik: Kim, Where is The cat?
+    {% ECHO  ['Kim', '  Kim!!' , 'Where is the cat?'] %}
 
-    Kim: {% BLIN! 'I don''t know' %}
+    Kim: Emmm....
+    {% BLIN! 'I don''t know' %}
     
 Move around
-    Insert Hello Before WORLD.
-    WORLD {% ECHO 'GO START' | NORM ^ | INSERT 'Hello ' | NORM $ %}
+    Insert ``HELLO`` Before ``WORLD``.
+
+    WORLD {% ECHO 'GO ^' | NORM ^ | INSERT 'Hello ' | NORM $ %}
 
 Striping new line
-    Use `-` in command tags to strip newlines.
-    Like ``!{%-`` and ``!-%}``
+    Use ``-`` in command tags to strip newlines.
 
-    {%- ECHO 'NO NEW LINE FOR THIS LINE'  -%}
+    Like ``!{%-`` and ``!-%}``
+    
+        One Line
+        {%- ECHO 'NO NEW LINE FOR THIS LINE'  %}
+        Two Line
 
 Command Blocks
     Things between ``!{@`` and ``!@}``
@@ -61,6 +83,7 @@ Command Blocks
 
     Insert 10 Lines,
     Then insert line numbers::
+
 
         {@
             ECHO 'INPUT NEW LINES'
@@ -75,7 +98,7 @@ Command Blocks
             ECHO 'INPUT LINE NUMBERS'
             call setpos('.', pos)
             for i in range(a)
-                INSERT! 'LINE '.i.':'
+                INSERT! '     LINE '.(i+1).':'
                 norm! j
             endfor
             norm! G$
@@ -83,25 +106,29 @@ Command Blocks
         @}
 
 Simple commands 
-    There are simple command like ``!^_xxx``
+    Simple command are like ``!^_xxx``
+
+        Copy This Line ``!^_yy`` ^_yy
+
+        Paste here ``^_p`` ^_p$
+
     It will consume all following char 
     till a space or end of line.
     
-    :NOTE: To insert a space after a simple command.
-           You must input 2 spaces.
-
+    So to insert a space after a simple command.
+    You must input 2 spaces.
 
 Variables
 ---------
 
-Variables are vim variable evaluation typed in place, 
+Variables are typed in place 
 
-Vim expressions
+Expressions
     100 + 99 = {{ 100+99 }}
 
-    functions: {{ strftime('%c') }}
+    strftime: {{ strftime('%c') }}
 
-    list : {{ range(5) }}
+    list: {{ range(5) }}
 
 You can define variable and use them.
     let a = 3 {% let a = 3 %}
@@ -114,9 +141,10 @@ You can define variable and use them.
     you can use ``g:vars`` and ``b:vars``
 
 Also some context variables can be used
-    File: {{ __file__ }}
+    __file__: {{ __file__ }}
 
-    Source: {{ __source__ }}
+    __source__: {{ __source__ }}
 
-{{% BLINK 'Syntax Overview finished' %}}
+{% BLINK 'Syntax Overview finished, Do Some Clean Up' %}
 {%- bw! -%}
+{%- set noscb -%}

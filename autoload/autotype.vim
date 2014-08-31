@@ -220,11 +220,15 @@ fun! s:type_norm(line, idx) "{{{
     let idx = a:idx
     " XXX 
     " Still Met some issues with strip tags
-    if s:_lstrip == 1
+    
+    " We should reset them all when met one.
+    if s:_lstrip == 1 || s:_rstrip == 1
         let idx = 1
         let line = substitute(line, '^\s*', '','')
         let s:_lstrip = 0
+        let s:_rstrip = 0
     endif
+
 
     if g:autotype_skip_by == 'char'
         let chars = split(line, '.\zs')
@@ -466,7 +470,6 @@ fun! s:type_line(line) "{{{
     let line = a:line
     let parts = s:parse_line(line)
     let _t = 0
-    " call s:echo(string(parts))
 
     for p in parts
         if p['type']  == 'cmd'
@@ -539,20 +542,26 @@ fun! s:type_lines(lines) abort "{{{
 
 
         let _typed = s:type_line(line)
+        echom _typed '"'.line.'"' i
 
         " The New Line Control
         " EOF_LINE: end line which is not in inlcuded file will not return '\r'
         " LSTRIP: line starts with '{%-' pattern will make last line not return '\r'
         " RSTRIP: line end with '-%}' pattern will not return '\r'
-        if ( i == end  && s:_ctx.__is_included__ != 1 )
-                \ || line =~ s:ptn_rstrip
-                \ || (i != end && a:lines[i+1] =~ s:ptn_lstrip )
-
-            " if lstrip , then next line should append 
+        
+        if  i == end  && s:_ctx.__is_included__ != 1
+            continue
+        elseif line =~ s:ptn_rstrip
+            " If current line is rstrip, 
+            " then next line should append 
             " instead of insert
-            if i != end && a:lines[i+1] =~ s:ptn_lstrip
-                let s:_lstrip = 1
-            endif
+            let s:_rstrip = 1
+            continue
+        elseif i != end && a:lines[i+1] =~ s:ptn_lstrip
+            " if next line is lstrip
+            " then next line should append 
+            " instead of insert
+            let s:_lstrip = 1
             continue
         else
             " Warning: APPEND or append
@@ -568,9 +577,18 @@ fun! s:type_lines(lines) abort "{{{
             if _typed
                 call s:append('', "\r", g:autotype_sleep_word)
             else
-                if s:_lstrip == 1
+                " NOT _typed. Then this is an empty line
+                " with '\r', so rstrip and lstrip should 
+                " considered
+                " And we will reset them to 0 
+                " if consumed one
+                echom _typed line
+                echom 'l' s:_lstrip
+                echom 'r' s:_rstrip
+                if s:_lstrip == 1 || s:_rstrip == 1
                     call s:append('', "\r", g:autotype_sleep_word)
                     let s:_lstrip = 0
+                    let s:_rstrip = 0
                 else
                     call s:insert('', "\r", g:autotype_sleep_word)
                 endif

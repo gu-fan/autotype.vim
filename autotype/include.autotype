@@ -1,6 +1,7 @@
 {%- new -%}
+{%- INCLUDE syntax -%}
 {%- INCLUDE variable -%}
 {%- INCLUDE command -%}
 {%- INCLUDE position -%}
-{%- INCLUDE syntax -%}
+{%- INCLUDE python -%}
 {%- bw! -%}

@@ -1,6 +1,7 @@
 AUTOTYPE
 ========
 
+:0.10.7: Add Python Code Block.
 :0.10.6: Add ``INCLUDE`` tag.
 
          Add ``Striping`` syntax like ``{%- and -%}``.

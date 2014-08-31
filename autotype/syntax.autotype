@@ -103,6 +103,17 @@ Command Blocks
             norm! G$
             ECHO 'DONE'
         @}
+    
+    Python Code Blocks can be used too
+    {@ python
+    # You can access local variables with _
+    print _['__file__']
+
+    # assign a new valiable.
+    _['k'] = 150
+    @}
+
+    python variable k: {{ k }}
 
 Simple commands 
     Simple command are like ``!^_xxx``

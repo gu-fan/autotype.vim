@@ -92,6 +92,18 @@ Syntax overview::
         endfor
     @}
     
+    Use python code 
+    {@ python
+    # Aware the indent.
+    # You can access local variables with _
+    print _['__file__']
+    def Hello(name):
+        print name
+
+    Hello('World')
+    _['__file__'] = 5
+    @}
+   
     Variable Tag: 
 
         Local variable:  a = {{ a }}
@@ -264,8 +276,10 @@ TYPE[!] 'text here'
 
     You can pass a dictionary:
         'hl': hightlight. 
+        You can set ``g:autotype_default_hl`` for it.
 
         'char': '[char]' part.
+        You can set ``g:autotype_default_char`` for it.
 
         'arg': str/lst to print
 
@@ -434,6 +448,12 @@ g:autotype_cursor_aug
 
     This is mainly used for updating buffer with InstantRst_
 
+g:autotype_default_char 
+    The '[char]' part for ``ECHO|BLINK``
+
+g:autotype_default_hl
+    The '[char]' part's highlight for ``ECHO|BLINK``
+
 ISSUES
 ======
 
@@ -465,6 +485,7 @@ You can find one thing and contribute to it at github_
     5. [X] 2014-08-31 Add ``INCLUDE`` TAG
     6. [X] 2014-08-31 Add Striping Syntax like ``{%- and -%}``.
     7. [X] 2014-08-31 Make typing output like typing in insert mode.
+    7. [X] 2014-09-01 Add Python Code Block support
     8. Make more autotype sources.
     9. Make it more stable and useful.
     10. Helping others.

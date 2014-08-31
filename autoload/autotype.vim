@@ -74,6 +74,8 @@ fun! autotype#init() "{{{
         \ ["g:autotype_file_directory", ''],
         \ ["g:autotype_global_context", {}],
         \ ["g:autotype_debug", 0],
+        \ ["g:autotype_default_char", 'AUTOTYPE'],
+        \ ["g:autotype_default_hl", 'ModeMsg'],
         \ ]
 
 
@@ -146,6 +148,8 @@ fun! autotype#init() "{{{
     let s:v_end = '!\@<!'.g:autotype_syn_var_end
     let s:cm_bgn = '^\s*!\@<!'.g:autotype_syn_cmt_bgn
     let s:cm_end = '!\@<!'. g:autotype_syn_cmt_end.'\s*$'
+    let s:csp_bgn = '^\s*'.g:autotype_syn_cmds_bgn.'\s\+python\s*$'
+    let s:csp_end = '^\s*'.g:autotype_syn_cmds_end.'\s*$'
 
     " NOTE: include the \s in s:once to ignore input suffix whitespace
     let s:ptn_once = s:c_once .'\([^[:space:]]\+\)\(\s\|$\)'
@@ -163,8 +167,10 @@ fun! autotype#init() "{{{
     let s:s.var = s:v_bgn.'.\{-}'.s:v_end
     let s:s.cmd_p = s:c_bgn.'\|'.s:c_end
     let s:s.cmd = s:c_bgn.'.\{-}'.s:c_end
-    let s:s.cmds_bgn = s:cs_bgn
-    let s:s.cmds_end = s:cs_end
+    let s:s.code_vim_bgn = s:cs_bgn
+    let s:s.code_vim_end = s:cs_end
+    let s:s.code_python_bgn = s:csp_bgn
+    let s:s.code_python_end = s:csp_end
     let s:s.cmt_bgn = s:cm_bgn
     let s:s.cmt_end = s:cm_end
 
@@ -273,25 +279,36 @@ fun! s:type_cmd(cmd) "{{{
     redraw
     call s:sleep(g:autotype_sleep_cmd)
 endfun "}}}
-fun! s:exe_cmds(cmds) "{{{
+fun! s:exe_cmds(cmds, type) "{{{
     " cmds is a list of lines
-    call writefile([
-                \'fun! s:_temp()',
-                \'call extend(l:, g:_autotype_context)']
-                \+ a:cmds +
-                \['call extend(g:_autotype_context,l:)',
-                \'endfun',
-                \'call s:_temp()'], s:tempfile)
     try
-        exe "so " s:tempfile
-    catch /^Vim\%((\a\+)\)\=:E\|^AUTOTYPE:/	" catch all Vim errors and AutoType errors
+        if a:type == 'vim'
+            call writefile([
+                        \'fun! s:_temp()',
+                        \'call extend(l:, g:_autotype_context)']
+                        \+ a:cmds +
+                        \['call extend(g:_autotype_context,l:)',
+                        \'endfun',
+                        \'call s:_temp()'], s:tempfile)
+            exe "so " s:tempfile
+        elseif a:type == 'python'
+            call writefile([
+                        \'import vim',
+                        \'_ = vim.bindeval("g:_autotype_context")']
+                        \+ a:cmds , s:tempfile)
+            exe "pyfile " s:tempfile
+        else
+            throw 'AUTOTYPE: Unknow Code Type.'
+        endif
+    catch /^Vim\%((\a\+)\)\=:E\|^AUTOTYPE:\|^Exception: AUTOTYPE:/	" catch all Vim errors and AutoType errors
         call s:echo('!', 0, v:exception)
         call s:echo('!', 0 ,"from line ".s:_ctx.__lnum__.": ".s:_ctx.__line__)
         if g:autotype_debug == 1 | throw v:exception | endif
         " break
     endtry
     
-    " NOTE: we can not :execute a 'for' or 'while'
+    " NOTE: We can not :execute a 'for' or 'while' .
+    "       See ':h :exe'
     " call extend(l:, s:_ctx)
     " try
     "     for cmd in a:cmds
@@ -496,22 +513,30 @@ fun! s:type_lines(lines) abort "{{{
 
     
     let end = len(a:lines) - 1
-    let s:_lstrip = 0
     for i in range(end+1)
         let line = a:lines[i]
         let s:_ctx.__line__ = line
         let s:_ctx.__lnum__ = (i+1)
 
 
-        " lines in ^[^[ are commands
-        if line =~ s:cs_bgn && cmd_mode == 0 && cmt_mode != 1
+        " Command Block
+        if (line =~ s:cs_bgn || line =~ s:csp_bgn ) 
+            \ && cmd_mode == 0 && cmt_mode != 1
             let cmds = []
+            if line =~ s:csp_bgn
+                let cmd_type = 'python'
+            else
+                let cmd_type = 'vim'
+            endif
             let cmd_mode = 1
             continue
         endif
-
-        if line =~ s:cs_end && cmd_mode == 1
-            call s:exe_cmds(cmds)
+        
+        " In fact they are the same...
+        " But put here as user defined may variant.
+        if ( line =~ s:cs_end || line =~ s:csp_end )
+            \&& cmd_mode == 1
+            call s:exe_cmds(cmds, cmd_type)
             let cmd_mode = 0
             continue
         endif
@@ -521,7 +546,7 @@ fun! s:type_lines(lines) abort "{{{
             continue
         endif
 
-        " lines in {# are comments, Just escape them
+        " Comments Block
         if line =~ s:cm_bgn && cmt_mode == 0 && cmd_mode != 1
             " A one line comment
             if line =~ s:cm_end
@@ -615,14 +640,14 @@ fun! s:get_echo_args(bang, count, arg) "{{{
     if a:bang == '!'
         let hl = 'ErrorMsg'
     else
-        let hl = 'ModeMsg'
+        let hl = g:autotype_default_hl
     endif
     let ct = a:count==-1 ? 0 : a:count==0 ? g:autotype_sleep_echo : (1000*a:count)
 
     if type(a:arg) == type({})
-        let hl = get(a:arg,'hl', hl)
+        let hl = get(a:arg,'hl', g:autotype_default_hl)
         let arg = get(a:arg, 'arg', '')
-        let char = get(a:arg, 'char', 'AUTOTYPE')
+        let char = get(a:arg, 'char', g:autotype_default_char)
     else
         let arg = a:arg
         let char = 'AUTOTYPE'
@@ -747,6 +772,8 @@ fun! autotype#type_file(f) "{{{
         let s:_ctx.__is_included__ = 0
         call add(s:_ctx.__include__, f)
         call s:echo("", -1 , "Typing Start")
+        let s:_lstrip = 0
+        let s:_rstrip = 0
         call s:type_lines(readfile(f))
 
     catch /^Vim:Interrupt$/	" catch interrupts (CTRL-C)

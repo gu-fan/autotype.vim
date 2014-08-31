@@ -15,7 +15,6 @@ d {{ d }}
 
 variable_type_mismatch {% let a = {} %}
 undefined_var {{ undefined_var }}
-XXX: argument required {% ECHO 1 %}
 
 
 Context Variables
@@ -25,4 +24,5 @@ finish_time: {{ strftime('%c')  }}
 
 global Variables
 g:autotype_speed : {{ g:autotype_speed }}
+
 {%- bw! -%}

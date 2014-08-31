@@ -13,18 +13,17 @@
 
     norm! ggVGd
     setf rst
+    set tw=999
     
     if exists(":InstantRst")
         ECHO 'View with InstantRst'
         InstantRst
     endif
 @}
-
 AutoType Syntax Overview
 ========================
 
-^_ggddG$
-This is the ``syntax.autotype`` for **AutoType**'s syntax overview.
+This is the ``syntax.autotype`` file for **AutoType**'s syntax overview.
 
 Normal
 ------
@@ -161,8 +160,8 @@ Also some context variables can be used
     Total Elapsed Time: {{ localtime() - __time__ }} sec.
 
     See README for more details.
-    
+ 
 {% BLINK 'Syntax Overview finished, Do Some Clean Up' %}
 {%- set noscb -%}
-{%- bw! -%}
+{# {%- bw! -%} #}
 {%- set noscb -%}

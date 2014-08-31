@@ -1,41 +1,114 @@
-{% BLINK {'hl':'Function','arg':map(range(5,1,-1),'''Start a new file: ''.v:val')} | new %}Typing Some Normal Things
+{%- new syn_test -%}
+{%- setf rst -%}
+{%- setlocal inde='' -%}
+{%- setlocal indk='' -%}
+AutoType Syntax Overview
+========================
 
-Hello World
+This is syntax.autotype for autotype's syntax. 
 
-Comment Tags
-{# This is A MultiLine
-    Comments #}
-Variable Tags
-Current Time is {{ strftime('%c') }}
-A list {{ range(20) }}
+Normal
+------
 
-Command Tags
-Mik: {% BLIN 'Where is the cat?' %}
-Kim: {% BLIN! 'I don''t know' %}
+Normal Text are typed plainly.
 
-    ECHO AND HOTKEY {% ECHO 'Go to Start' | NORM! 0 | ECHO 'TYPE Something' | TYPE 'SOMETHING' | NORM! $ %}
+Comments
+--------
 
-Do more with Command Blocks
-{% let a = 10 %}
-{@
-    for i in range(a)
-        INSERT 'THIS IS A MULTI LINE CONTENT\n'
-    endfor
-@}
-{# Insert line numbers #}
-{@
-exe "norm! ".a.'k'
-for i in range(a)
-    let a = 2
-    norm! 0
-    INSERT 'LINE '.i.' '
-    norm! j
-endfor
-@}
+Things in Comment Tags ``{#`` and ``#}`` are comments
+They should be the first/last char of a line.
 
-Simple Commands 
-Yank 
-Something ^_yy
+    {#  This is a comments block
+        Comments here
+        #}
 
-Then Paste 
-^_P
+Commands
+--------
+
+Things inbetween ``!{%`` and ``!%}`` are commands.
+(use ! to prevent parsing as commands)
+
+It will trigger Vim Commands in place.
+
+Also some help commands are defined.
+
+ECHO AND BLINK
+    Mik: {% ECHO  ['Kim', '  Kim!!' , 'Where is the cat?']%}
+
+    Kim: {% BLIN! 'I don''t know' %}
+    
+Move around
+    Insert Hello Before WORLD.
+    WORLD {% ECHO 'GO START' | NORM ^ | INSERT 'Hello ' | NORM $ %}
+
+Striping new line
+    Use `-` in command tags to strip newlines.
+    Like ``!{%-`` and ``!-%}``
+
+    {%- ECHO 'NO NEW LINE FOR THIS LINE'  -%}
+
+Command Blocks
+    Things between ``!{@`` and ``!@}``
+    are command block.
+
+    Insert 10 Lines,
+    Then insert line numbers::
+
+        {@
+            ECHO 'INPUT NEW LINES'
+            let a = 10
+            let pos = getpos('.')
+            for i in range(a)
+                INSERT 'THIS IS A NEW LINE\n'
+            endfor
+        @}
+
+        {@
+            ECHO 'INPUT LINE NUMBERS'
+            call setpos('.', pos)
+            for i in range(a)
+                INSERT! 'LINE '.i.':'
+                norm! j
+            endfor
+            norm! G$
+            ECHO 'DONE'
+        @}
+
+Simple commands 
+    There are simple command like ``!^_xxx``
+    It will consume all following char 
+    till a space or end of line.
+    
+    :NOTE: To insert a space after a simple command.
+           You must input 2 spaces.
+
+
+Variables
+---------
+
+Variables are vim variable evaluation typed in place, 
+
+Vim expressions
+    100 + 99 = {{ 100+99 }}
+
+    functions: {{ strftime('%c') }}
+
+    list : {{ range(5) }}
+
+You can define variable and use them.
+    let a = 3 {% let a = 3 %}
+
+    a = {{ a }}
+
+    Variables are local to current context.
+
+    To use variables accross sources, 
+    you can use ``g:vars`` and ``b:vars``
+
+Also some context variables can be used
+    File: {{ __file__ }}
+
+    Source: {{ __source__ }}
+
+
+{%- bd! -%}

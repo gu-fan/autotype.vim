@@ -1,0 +1,16 @@
+{%- new -%}
+{%- setf rst -%}
+Variables are vim variable evaluation typed in place, 
+
+Vim expressions
+    100 + 99 = {{ 100+99 }}
+
+    strftime('%c') : {{ strftime('%c') }}
+
+    range(5) : {{ range(5) }}
+
+You can define variable and use them.
+
+    {%- let a = 3 -%}
+
+    strftime('%c') : {{ strftime('%c') }}

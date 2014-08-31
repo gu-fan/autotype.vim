@@ -1,4 +1,4 @@
-{% new %}
+{%- new -%}
 var a {% let a = 3 %}
 var b {% let b = 4 %}
 
@@ -25,3 +25,4 @@ finish_time: {{ strftime('%c')  }}
 
 global Variables
 g:autotype_speed : {{ g:autotype_speed }}
+{%- close -%}

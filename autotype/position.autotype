@@ -1,0 +1,20 @@
+{%- new -%}
+{# WRONG ONE #}
+THE {% NORM 0 | INSERT 'THIS' %} IS
+CORRECT
+POSITION
+{%- close -%}
+{%- new -%}
+{# CORRECT ONE #}
+THE {% NORM 0 | INSERT 'THIS' %} IS {% norm $ %}
+CORRECT
+POSITION
+{%- close -%}
+{%- new -%}
+{# SIMPLE ONE 
+   Note: the command will consume one space
+    So we must type 2 space here.  #}
+THE ^_0iTHIS  IS ^_$
+CORRECT
+POSITION
+{%- close -%}

@@ -1,0 +1,6 @@
+{%- new -%}
+{%- INCLUDE variable -%}
+{%- INCLUDE command -%}
+{%- INCLUDE position -%}
+{%- INCLUDE syntax -%}
+{%- close -%}

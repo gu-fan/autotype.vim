@@ -1,0 +1,27 @@
+{% new %}
+var a {% let a = 3 %}
+var b {% let b = 4 %}
+
+a {{ a }}
+b {{ b }}
+
+var c,d
+{@
+    let c = 5
+    let d = 6
+@}
+c {{ c }}
+d {{ d }}
+
+variable_type_mismatch {% let a = {} %}
+undefined_var {{ undefined_var }}
+XXX: argument required {% ECHO 1 %}
+
+
+Context Variables
+__lnum__: {{ __lnum__ }}
+start_time: {{ strftime('%c', __time__)  }}
+finish_time: {{ strftime('%c')  }}
+
+global Variables
+g:autotype_speed : {{ g:autotype_speed }}

@@ -1,15 +1,13 @@
-{% BLINK 'Start a new file for testing' | new %}Typing Some Normal Things
+{% BLINK {'hl':'Function','arg':map(range(5,1,-1),'''Start a new file: ''.v:val')} | new %}Typing Some Normal Things
 
 Hello World
 
-{# Comments #}
+Comment Tags
 {# This is A MultiLine
     Comments #}
-
 Variable Tags
-
 Current Time is {{ strftime('%c') }}
-A list {{ range(20)  }}
+A list {{ range(20) }}
 
 Command Tags
 Mik: {% BLIN 'Where is the cat?' %}
@@ -18,16 +16,24 @@ Kim: {% BLIN! 'I don''t know' %}
     ECHO AND HOTKEY {% ECHO 'Go to Start' | NORM! 0 | ECHO 'TYPE Something' | TYPE 'SOMETHING' | NORM! $ %}
 
 Do more with Command Blocks
+{% let a = 10 %}
 {@
-norm! 10k
-for i in range(10)
+    for i in range(a)
+        INSERT 'THIS IS A MULTI LINE CONTENT\n'
+    endfor
+@}
+{# Insert line numbers #}
+{@
+exe "norm! ".a.'k'
+for i in range(a)
+    let a = 2
     norm! 0
     INSERT 'LINE '.i.' '
     norm! j
 endfor
 @}
 
-Inline Commands 
+Simple Commands 
 Yank 
 Something ^_yy
 

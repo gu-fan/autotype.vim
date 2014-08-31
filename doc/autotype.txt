@@ -1,0 +1,15 @@
+*autotype.txt*  Autotyping in vim
+
+Author:  rykka <rykka@foxmail.com>
+
+                        AUTOTYPE.VIM
+
+INTRODUCTION                                    *autotype.vim*
+
+This plugin make vim works for you.
+
+
+For detailed info, See github page:
+https://github.com/Rykka/autotype.vim
+
+(As author is lazy.)

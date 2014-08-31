@@ -25,4 +25,4 @@ finish_time: {{ strftime('%c')  }}
 
 global Variables
 g:autotype_speed : {{ g:autotype_speed }}
-{%- close -%}
+{%- bw! -%}

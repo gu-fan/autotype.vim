@@ -3,13 +3,13 @@
 THE {% NORM 0 | INSERT 'THIS' %} IS
 CORRECT
 POSITION
-{%- close -%}
+{%- bw! -%}
 {%- new -%}
 {# CORRECT ONE #}
 THE {% NORM 0 | INSERT 'THIS' %} IS {% norm $ %}
 CORRECT
 POSITION
-{%- close -%}
+{%- bw! -%}
 {%- new -%}
 {# SIMPLE ONE 
    Note: the command will consume one space
@@ -17,4 +17,4 @@ POSITION
 THE ^_0iTHIS  IS ^_$
 CORRECT
 POSITION
-{%- close -%}
+{%- bw! -%}

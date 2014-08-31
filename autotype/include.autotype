@@ -3,4 +3,4 @@
 {%- INCLUDE command -%}
 {%- INCLUDE position -%}
 {%- INCLUDE syntax -%}
-{%- close -%}
+{%- bw! -%}

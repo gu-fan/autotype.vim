@@ -2,6 +2,14 @@
 {%- setf rst -%}
 {%- setlocal inde='' -%}
 {%- setlocal indk='' -%}
+{@
+    if exists(":InstantRst")
+        ECHO 'YES'
+        InstantRst!
+    else
+        ECHO 'NO'
+    endif
+@}
 AutoType Syntax Overview
 ========================
 
@@ -110,5 +118,5 @@ Also some context variables can be used
 
     Source: {{ __source__ }}
 
-
-{%- bd! -%}
+{{% BLINK 'Syntax Overview finished' %}}
+{%- bw! -%}

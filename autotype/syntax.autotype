@@ -1,8 +1,8 @@
+{# vim:set tw=999 #}
 {@
     ECHO 'Do Some Preparation'
 
     if __file__ == __source__
-        let _scb = 1 
         norm! gg
         set scb 
         new
@@ -12,8 +12,7 @@
     endif
 
     norm! ggVGd
-    setlocal inde=''
-    setlocal indk=''
+    setf rst
     
     if exists(":InstantRst")
         ECHO 'View with InstantRst'
@@ -25,18 +24,18 @@ AutoType Syntax Overview
 ========================
 
 ^_ggddG$
-This is syntax.autotype for autotype's syntax. 
+This is the ``syntax.autotype`` for **AutoType**'s syntax overview.
 
 Normal
 ------
 
 Normal Text are typed directly.
-    Works as insert them one by one.
+    Works as inserted one by one.
     
 Comments
 --------
 
-Things in Comment Tags ``{#`` and ``#}`` are comments
+Things in comment tags ``{#`` and ``#}`` are comments
 
 They should be the first/last char of a line.
     
@@ -52,21 +51,21 @@ Commands
 
 Things inbetween ``!{%`` and ``!%}`` are commands.
 
-It will trigger Vim Commands in place.
+It will trigger vim commands in place.
 
 Also some help commands like ``ECHO|NORMAL|INSERT`` are defined.
 
 ECHO AND BLINK
-    Mik: Kim, Where is The cat?
-    {% ECHO  ['Kim', '  Kim!!' , 'Where is the cat?'] %}
+    Mik: Kim, Where is the cat?
+    {%- BLIN  {'char':'Mik', 'arg':['kim', '  kim!!' , 'where is the cat?']} %}
 
-    Kim: Emmm....
-    {% BLIN! 'I don''t know' %}
+    Kim: Emmm.... I don't know.
+    {%- BLIN! {'char':'Kim', 'arg':['Emm.', 'Emm...'  , 'I don''t know'],'hl':'PreProc'} %}
     
 Move around
     Insert ``HELLO`` Before ``WORLD``.
 
-    WORLD {% ECHO 'GO ^' | NORM ^ | INSERT 'Hello ' | NORM $ %}
+    WORLD {% ECHO 'GO ^' | NORM ^ | INSERT 'HELLO ' | NORM $ %}
 
 Striping new line
     Use ``-`` in command tags to strip newlines.
@@ -74,20 +73,20 @@ Striping new line
     Like ``!{%-`` and ``!-%}``
     
         One Line
-        {%- ECHO 'NO NEW LINE FOR THIS LINE'  %}
+        {%- ECHO 'The Two line will concat in One Line'  -%}
         Two Line
 
 Command Blocks
     Things between ``!{@`` and ``!@}``
     are command block.
 
-    Insert 10 Lines,
+    {% let a = 50 -%}
+    Insert {{ a }} Lines,
     Then insert line numbers::
 
 
         {@
             ECHO 'INPUT NEW LINES'
-            let a = 10
             let pos = getpos('.')
             for i in range(a)
                 INSERT 'THIS IS A NEW LINE\n'
@@ -98,7 +97,7 @@ Command Blocks
             ECHO 'INPUT LINE NUMBERS'
             call setpos('.', pos)
             for i in range(a)
-                INSERT! '     LINE '.(i+1).':'
+                INSERT! '     LINE '.printf('%-3d',(i+1)).':'
                 norm! j
             endfor
             norm! G$
@@ -110,7 +109,7 @@ Simple commands
 
         Copy This Line ``!^_yy`` ^_yy
 
-        Paste here ``^_p`` ^_p$
+        Paste here ``!^_p`` ^_p$
 
     It will consume all following char 
     till a space or end of line.
@@ -126,7 +125,7 @@ Variables are typed in place
 Expressions
     100 + 99 = {{ 100+99 }}
 
-    strftime: {{ strftime('%c') }}
+    strftime('%'): {{ strftime('%c') }}
 
     list: {{ range(5) }}
 
@@ -145,6 +144,13 @@ Also some context variables can be used
 
     __source__: {{ __source__ }}
 
+    __speed__: {{ __speed__ }}
+
+    Total Elapsed Time: {{ localtime() - __time__ }} sec.
+
+    See README for details.
+    
 {% BLINK 'Syntax Overview finished, Do Some Clean Up' %}
+{%- set noscb -%}
 {%- bw! -%}
 {%- set noscb -%}

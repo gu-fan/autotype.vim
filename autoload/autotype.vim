@@ -542,7 +542,6 @@ fun! s:type_lines(lines) abort "{{{
 
 
         let _typed = s:type_line(line)
-        echom _typed '"'.line.'"' i
 
         " The New Line Control
         " EOF_LINE: end line which is not in inlcuded file will not return '\r'
@@ -582,9 +581,6 @@ fun! s:type_lines(lines) abort "{{{
                 " considered
                 " And we will reset them to 0 
                 " if consumed one
-                echom _typed line
-                echom 'l' s:_lstrip
-                echom 'r' s:_rstrip
                 if s:_lstrip == 1 || s:_rstrip == 1
                     call s:append('', "\r", g:autotype_sleep_word)
                     let s:_lstrip = 0
@@ -615,6 +611,30 @@ fun! s:sleep(t) "{{{
     endif
     exe "sl ".t."m"
 endfun "}}}
+fun! s:get_echo_args(bang, count, arg) "{{{
+    if a:bang == '!'
+        let hl = 'ErrorMsg'
+    else
+        let hl = 'ModeMsg'
+    endif
+    let ct = a:count==-1 ? 0 : a:count==0 ? g:autotype_sleep_echo : (1000*a:count)
+
+    if type(a:arg) == type({})
+        let hl = get(a:arg,'hl', hl)
+        let arg = get(a:arg, 'arg', '')
+        let char = get(a:arg, 'char', 'AUTOTYPE')
+    else
+        let arg = a:arg
+        let char = 'AUTOTYPE'
+    endif
+
+    if type(arg) ==type([])
+        let strs = arg
+    else
+        let strs= [arg]
+    endif
+    return [hl, ct, char, strs]
+endfun "}}}
 fun! s:echo(bang, count, arg) "{{{
     " @arg
     " if arg is a dict,
@@ -633,66 +653,38 @@ fun! s:echo(bang, count, arg) "{{{
     " when it's -1, then don't sleep
     " else sleep with the count seconds
     
-    if a:bang == '!'
-        let hl = 'ErrorMsg'
-    else
-        let hl = 'ModeMsg'
-    endif
-    let ct = a:count==-1 ? 0 : a:count==0 ? g:autotype_sleep_echo : (1000*a:count)
 
-    if type(a:arg) == type({})
-        let hl = get(a:arg,'hl', hl)
-        let arg = get(a:arg, 'arg', '')
-    else
-        let arg = a:arg
-    endif
-
-    if type(arg) ==type([])
-        let strs = arg
-    else
-        let strs= [arg]
-    endif
-
+    let [hl, ct, char, strs] = s:get_echo_args(a:bang, 
+                                \a:count, a:arg)
     for str in strs
-        exe "echohl ". hl | echom '[AUTOTYPE] '.str | redraw
-        echo '[AutoType]' | echohl Normal | echon ' '.str
+        exe "echohl ". hl | echom '['.char.'] '.str | redraw
+        echo '['.char.']' | echohl Normal | echon ' '.str
         redraw
         call s:sleep(ct)
     endfor
 endfun "}}}
 fun! s:blink(bang, count, arg,...) "{{{
-    " blinking version of autotype#echo
+    " blinking version of s:echo
     
-    if a:bang == '!'
-        let hl = 'ErrorMsg'
-    else
-        let hl = 'ModeMsg'
-    endif
-    let ct = a:count==-1 ? 0 : a:count==0 ? g:autotype_sleep_echo : (1000*a:count)
+    let [hl, ct, char, strs] = s:get_echo_args(a:bang, 
+                                \a:count, a:arg)
+
     let lp = str2nr(ct)/160
-    let bt = 100
-
-    if type(a:arg) == type({})
-        let hl = get(a:arg,'hl', hl)
-        let arg = get(a:arg, 'arg', '')
+    if lp < 2
+        let lp = 2
+        let bt = 50
     else
-        let arg = a:arg
-    endif
-
-    if type(arg) ==type([])
-        let strs = arg
-    else
-        let strs= [arg]
+        let bt = 100
     endif
 
     for str in strs
-        exe "echohl ". hl | echom '[AUTOTYPE] '.str | redraw
+        exe "echohl ". hl | echom '['.char.'] '.str | redraw
         for i in range(lp)
-            echohl Normal | echo '[AUTOTYPE]'
+            echohl Normal | echo '['.char.']'
             echon ' '.str | redraw
             call s:sleep(bt)
 
-            exe "echohl ". hl | echo '[AUTOTYPE]'
+            exe "echohl ". hl | echo '['.char.']'
             echohl Normal | echon ' '.str | redraw
             call s:sleep(bt)
         endfor

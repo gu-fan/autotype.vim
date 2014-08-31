@@ -12,11 +12,16 @@ Autotype.vim
 
 An auto typing engine for vim.
 
+
 .. figure:: https://github.com/Rykka/github_things/raw/master/image/autotype.gif
        :align: center
 
+
+
 Install
 =======
+
+Download from Github_, Or 
 
 Using Vundle or NeoBundle.
 
@@ -188,7 +193,7 @@ There are some predefined context variables.
     __time__
         Start time
     __exec_time__
-        Total executed time
+        Total executed time (Not avaliable during executing)
     __speed__
         The executing speed
 
@@ -411,6 +416,17 @@ g:autotype_cursor_aug
     Default is ``'*.rst,<buffer>'``
 
     This is mainly for updating buffer with InstantRst_
+
+ISSUES
+======
+
+Post issues at github_
+
+You can contribute to them as well.
+
+Currently, there are some issues around.
+        
+    1. Typing ``'`` with some text will cause the text to reindent.
 
 TODO
 ====

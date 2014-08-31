@@ -21,9 +21,7 @@ An auto typing engine for vim.
 Install
 =======
 
-Download from Github_, Or 
-
-Using Vundle or NeoBundle.
+Download from Github_, Or Using Vundle or NeoBundle.
 
 ``Bundle 'Rykka/autotype.vim'``
 
@@ -33,53 +31,51 @@ Useage
 
 
 AutoType [source_file]
-   Start auto typing source_file into current buffer with filename.
+   Start auto typing source_file into current buffer
 
-   All contents of that file will be typed into current buffer.
+   All contents of that source_file will be typed
 
    You can use ``Ctrl-C`` to stop.
 
-   When source_file is omitted, All autotype file under '&rtp' will
+   When source_file is omitted, all autotype file under '&rtp' will
    be found for you.
 
-Advancing
-=========
 
-:WARNING: **USE THEM WITH CAUTION**
-
-          Behavior of using commands and mappings are not predictable.
-          As users have different settings.
-
-          And **DON'T EVER** run other's autotype file 
-          without double checking.
-
-Advancing usage.
+Advancing Usage
+===============
 
 You can define commands and variables in specific tags.
 
 See below.
 
+:WARNING: Behavior of using commands and mappings are **NOT**
+          predictable.
 
-Syntax
-------
+          As users may have different settings.
 
-The syntax for autotype sources.
+          And as ``AutoType`` can do mostly everything with your vim.
 
-Default it's jinja like, and files with '.autotype' extensions will be recongized as ``autotype`` filetype and highlighted.
+          So run autotype file always with **DOUBLE CHECKING**.
+
+
+Syntax Overview
+---------------
+
+Files with '.autotype' extensions will be recongized as ``autotype`` filetype.
+
+Default syntax is 'jinja' alike, and can be changed. 
 
 vim commands are used directly in these tags.
 
-Try with ``:AutoType syntax``
-See ``autotype/syntax.autotype`` for details. 
+Try demo with ``:AutoType syntax``.
+
+File is at ``autotype/syntax.autotype``.
 
 Syntax overview::
 
-    Comments 
-    {# This is a line of Comments #}
-
-    Comments Block
-    {# Multiline Comments 
-       Can be used Too #}
+    Comments
+    {# Comments or Multiline Comments 
+       Can be used #}
 
     Command Tag:
     {% ECHO 'GO START' | NORM! 0  | TYPE 'SOMETHING' | NORM! $ %}
@@ -97,33 +93,37 @@ Syntax overview::
     @}
     
     Variable Tag: 
-    {{ range(10) + [1, 2, 3] }}
 
-    local variable:  a = {{ a }}
-    context variable: {{ __file__ }}
+        Local variable:  a = {{ a }}
+        Eval {{ range(10) + [1, 2, 3] }}
+        Context variable: {{ __file__ }}
 
     Simple Command Tag: 
     (^_xxx follow with a space or end of line)
 
-    Yank 
-    Something ^_yy
+    Yank ^_yy
 
-    Then Paste and go end of line ^_p$
+    Paste and go end of line ^_p$
 
 :Warning: 
 
       **Work With Moving Commands**
 
-      When using moving command like ``{{% norm 0 %}}``
+      When using moving command like 
+      ``{{% norm 0 %}}`` or ``^_0``
 
-      Following lines will be typed **AT** that position.
+      Following lines will be typed **FROM** that position.
       This will make output totally different from autotype source.
 
       **BUT IT IS THE DESIRED BEHAVIOR**
 
       *AS THIS IS AN AUTOTYPE ENGINE, NOT A TEMPLATE ENGINE.*
 
-      So you must always keep in mind where is the correct position.
+      So you must always take care what is the correct position
+      after a moving command. 
+
+      (Luckily, you can test by typing it directly.)
+
 
       e.g.:
 
@@ -162,7 +162,7 @@ Syntax overview::
           CORRECT
           POSITION
 
-      See The effects with ``AutoType position``.
+      See demo with ``AutoType position``.
 
       File is at ``autotype/position.autotype``
 
@@ -207,7 +207,7 @@ You can get last context with ``g:autotype_last_context``.
 Help Commands
 -------------
 
-*commands that can be used both in tags and vim*
+*Commands that can be used both in tags and vim*
 
 NORMAL[!] commands here
     Like ':normal', And words like \<C-W> will be convert 
@@ -255,22 +255,37 @@ TYPE[!] 'text here'
     Add ``!`` to use ``ErrorMsg`` highlight,
     Default is ``ModeMsg`` highlight.
 
-        You can pass a dictionary with 'hl' to use that
-        hightlight, 'arg' is needed then.
+    You can pass a list:
+        Then it will echo with each item.
 
-        e.g.:  ``{'hl':'Function','arg':'Echo Strings'}``
+        e.g.::
+
+            ECHO range(10,1,-1) | 1BLINK 'Go!'
+
+    You can pass a dictionary:
+        'hl': hightlight. 
+
+        'char': '[char]' part.
+
+        'arg': str/lst to print
+
+    e.g.::  
+
+        ECHO {'hl':'String','arg':'Hello', 'char': 'Mike'}
 
     Add ``n`` to wait ``n`` second.
     Default is dynamic by current speed.
 
     The things echoed will also be shown in ':message'.
 
-    example::
 
-        ECHO range(10,1,-1) | 1BLINK 'Hello World'
+    :XXX: A number passed to ``ECHO`` directly can not be shown.
 
-    :XXX: A plain number passed to echo can not be shown.
-          like ``:ECHO 3``
+          Like ``:ECHO 3``,
+          will produce ``Argument Required Error``
+
+          So use ``ECHO '3'`` 
+          or ``ECHO a`` (assume ``a == 3`` )
 
 [n]BLINK[!] [str/list/dict]
     A blinking versoin of ':echo' 
@@ -316,16 +331,18 @@ TYPE[!] 'text here'
 
 
 INCLUDE source_file[.autotype]
-    Include a autotype source file in Command Tag/Block.
-    Can not be executed as Vim Command.
+    Include a autotype source file in command tag/block.
+
+    This command can **NOT** be executed as vim command.
 
     It searches the source file from 
-    local/``g:autotype_file_directory``/&rtp
+    ``local>g:autotype_file_directory>&rtp``
 
-    See effects with ``AutoType include``
-    You can check with ``autotype/include.autotype``
+    See demo with ``AutoType include``.
+    File is at ``autotype/include.autotype``
 
-
+    When files are recursively included, it will run
+    only the first time.
     
 Options
 =======
@@ -415,7 +432,7 @@ g:autotype_cursor_aug
 
     Default is ``'*.rst,<buffer>'``
 
-    This is mainly for updating buffer with InstantRst_
+    This is mainly used for updating buffer with InstantRst_
 
 ISSUES
 ======
@@ -427,6 +444,10 @@ You can contribute to them as well.
 Currently, there are some issues around.
         
     1. Typing ``'`` with some text will cause the text to reindent.
+
+       This is caused mainly by indent settings
+       like '&inde,&indk,&cpo'.
+       So you should check them first.
 
 TODO
 ====

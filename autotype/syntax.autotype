@@ -1,15 +1,15 @@
-{%- new syn_test -%}
-{%- setf rst -%}
-{%- setlocal inde='' -%}
-{%- setlocal indk='' -%}
-{@
-    if exists(":InstantRst")
-        ECHO 'YES'
-        InstantRst!
-    else
-        ECHO 'NO'
-    endif
-@}
+{# {%- new syn_test -%} #}
+{# {%- setf rst -%} #}
+{# {%- setlocal inde='' -%} #}
+{# {%- setlocal indk='' -%} #}
+{# {@ #}
+{#     if exists(":InstantRst") #}
+{#         ECHO 'YES' #}
+{#         InstantRst! #}
+{#     else #}
+{#         ECHO 'NO' #}
+{#     endif #}
+{# @} #}
 AutoType Syntax Overview
 ========================
 

@@ -180,7 +180,7 @@ fun! s:append(bang, str, ...) abort "{{{
     endif
 
     for au_ptn in split(g:autotype_cursor_aug, ',')
-        sil! noa exec "doau CursorMoved ". au_ptn
+        sil! exec "doau CursorMoved ". au_ptn
     endfor
 
     redraw
@@ -196,7 +196,7 @@ fun! s:insert(bang, str, ...) abort "{{{
     endif
     
     for au_ptn in split(g:autotype_cursor_aug, ',')
-        sil! noa exec "doau CursorMoved ". au_ptn
+        sil! exec "doau CursorMoved ". au_ptn
     endfor
 
     redraw

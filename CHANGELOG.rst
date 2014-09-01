@@ -1,6 +1,8 @@
 AUTOTYPE
 ========
 
+:0.10.8: Add Ruby/Lua/Javascript/... Code Block.
+         Add context support for javascript.
 :0.10.7: Add Python Code Block.
 :0.10.6: Add ``INCLUDE`` tag.
 

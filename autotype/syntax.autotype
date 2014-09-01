@@ -1,5 +1,5 @@
 {# vim:set tw=999 #}
-{@
+{@ vim
     ECHO 'Do Some Preparation'
 
     if __file__ == __source__
@@ -83,8 +83,7 @@ Command Blocks
     Insert {{ a }} Lines,
     Then insert line numbers::
 
-
-        {@
+        {@ vim
             ECHO 'INPUT NEW LINES'
             let pos = getpos('.')
             for i in range(a)
@@ -92,7 +91,7 @@ Command Blocks
             endfor
         @}
 
-        {@
+        {@ vim
             ECHO 'INPUT LINE NUMBERS'
             call setpos('.', pos)
             for i in range(a)
@@ -163,5 +162,5 @@ Also some context variables can be used
  
 {% BLINK 'Syntax Overview finished, Do Some Clean Up' %}
 {%- set noscb -%}
-{# {%- bw! -%} #}
+{%- bw! -%}
 {%- set noscb -%}

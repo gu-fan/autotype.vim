@@ -1,17 +1,6 @@
-{%- new -%}
-    {@ python
-    # You can access local variables with _
-    print _['__file__']
-
-    # Do python stuff here
-    import urllib2
-    response = urllib2.urlopen('http://python.org/')
-    _['html'] = response.read()
-
-    @}
-{{ html }}
-{%- setf html -%}
-{%- %s/python/PYTHON/g -%}
-{%- exe "w ".tempname() -%}
-{%- !firefox % -%}
-{%- bw! -%}
+{% let a = 3 %}
+{@ python
+# You can access local variables with _
+print 'Python:Hello vim'
+print _['a']
+@}

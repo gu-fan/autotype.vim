@@ -1,7 +1,7 @@
 {%- new -%}
 {# WRONG ONE #}
 THE {% NORM 0 | INSERT 'THIS' %} IS
-CORRECT
+WRONG
 POSITION
 {%- bw! -%}
 {%- new -%}

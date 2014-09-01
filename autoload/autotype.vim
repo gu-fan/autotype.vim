@@ -1,8 +1,28 @@
+" vim:fdm=marker:
 let s:save_cpo = &cpo
 set cpo&vim
 
 " OPTS: "{{{
-let s:tempfile = tempname()
+" Import
+function! autotype#get_vital() "{{{
+  if !exists('s:V')
+    let s:V = vital#of('autotype')
+  endif
+  return s:V
+endfunction"}}}
+function! s:get_json() "{{{
+  if !exists('s:JSON')
+    let s:JSON = autotype#get_vital().import('Web.JSON')
+  endif
+  return s:JSON
+endfunction"}}}
+function! s:json_decode(...) "{{{
+  return call(s:get_json().decode, a:000)
+endfunction"}}}
+function! s:json_encode(...) "{{{
+  return call(s:get_json().encode, a:000)
+endfunction"}}}
+
 function! s:default(option,value) "{{{
     if !exists(a:option)
         let {a:option} = a:value
@@ -24,9 +44,11 @@ fun! s:init_speed() "{{{
     elseif g:autotype_speed == 'turtle'
         let s:speed = 2
     elseif g:autotype_speed == 'swift'
-        let s:speed = 400
+        let s:speed = 120
+    elseif g:autotype_speed == 'storm'
+        let s:speed = 600
     elseif g:autotype_speed == 'lighting'
-        let s:speed = 30000
+        let s:speed = 3000
     else
         let s:speed = str2nr(g:autotype_speed)
     endif
@@ -76,6 +98,10 @@ fun! autotype#init() "{{{
         \ ["g:autotype_debug", 0],
         \ ["g:autotype_default_char", 'AUTOTYPE'],
         \ ["g:autotype_default_hl", 'ModeMsg'],
+        \ ["g:autotype_code_list", 'vim,sh,python,python3,ruby,perl,lua,javascript'],
+        \ ["g:autotype_code_runner", {}],
+        \ ["g:autotype_code_cmd", {}],
+        \ ["g:autotype_code_syntax", {'python3': 'python'}],
         \ ]
 
 
@@ -100,8 +126,8 @@ fun! autotype#init() "{{{
             \ ["g:autotype_syn_cmt_end",  '#}'],
             \ ["g:autotype_syn_var_bgn",  '{{'],
             \ ["g:autotype_syn_var_end",  '}}'],
-            \ ["g:autotype_syn_cmds_bgn", '{@'],
-            \ ["g:autotype_syn_cmds_end", '@}'],
+            \ ["g:autotype_syn_code_bgn", '{@'],
+            \ ["g:autotype_syn_code_end", '@}'],
             \ ["g:autotype_syn_cmd_once", '^_'],
             \ ] 
     else
@@ -112,8 +138,8 @@ fun! autotype#init() "{{{
             \ ["g:autotype_syn_cmt_end",  '\^>'],
             \ ["g:autotype_syn_var_bgn", '\^[{]'],
             \ ["g:autotype_syn_var_end", '\^[}]'],
-            \ ["g:autotype_syn_cmds_bgn", '\^\[\^\['],
-            \ ["g:autotype_syn_cmds_end", '\^\]\^\]'],
+            \ ["g:autotype_syn_code_bgn", '\^\[\^\['],
+            \ ["g:autotype_syn_code_end", '\^\]\^\]'],
             \ ["g:autotype_syn_cmd_once", '\^_'],
             \ ] 
     endif
@@ -142,14 +168,11 @@ fun! autotype#init() "{{{
     let s:c_bgn = '!\@<!'.g:autotype_syn_cmd_bgn.'\(-\=\)'
     let s:c_end = '!\@<!\(-\=\)'. g:autotype_syn_cmd_end
     let s:c_once = '!\@<!'.g:autotype_syn_cmd_once
-    let s:cs_bgn = '^\s*'.g:autotype_syn_cmds_bgn.'\s*$'
-    let s:cs_end = '^\s*'.g:autotype_syn_cmds_end.'\s*$'
     let s:v_bgn = '!\@<!'.g:autotype_syn_var_bgn
     let s:v_end = '!\@<!'.g:autotype_syn_var_end
     let s:cm_bgn = '^\s*!\@<!'.g:autotype_syn_cmt_bgn
     let s:cm_end = '!\@<!'. g:autotype_syn_cmt_end.'\s*$'
-    let s:csp_bgn = '^\s*'.g:autotype_syn_cmds_bgn.'\s\+python\s*$'
-    let s:csp_end = '^\s*'.g:autotype_syn_cmds_end.'\s*$'
+
 
     " NOTE: include the \s in s:once to ignore input suffix whitespace
     let s:ptn_once = s:c_once .'\([^[:space:]]\+\)\(\s\|$\)'
@@ -160,22 +183,47 @@ fun! autotype#init() "{{{
     let s:ptn_lstrip = '^\s*'.s:bgn.'-'
 
     " Syntax usage
-    let g:_autotype = {'syn':{}}
+    let g:_autotype = {'syn':{'syntax':{} }}
     let s:s = g:_autotype.syn
     let s:s.once = s:ptn_once
     let s:s.var_p = s:v_bgn.'\|'.s:v_end
     let s:s.var = s:v_bgn.'.\{-}'.s:v_end
     let s:s.cmd_p = s:c_bgn.'\|'.s:c_end
     let s:s.cmd = s:c_bgn.'.\{-}'.s:c_end
-    let s:s.code_vim_bgn = s:cs_bgn
-    let s:s.code_vim_end = s:cs_end
-    let s:s.code_python_bgn = s:csp_bgn
-    let s:s.code_python_end = s:csp_end
     let s:s.cmt_bgn = s:cm_bgn
     let s:s.cmt_end = s:cm_end
 
+    let s:code_list = split(g:autotype_code_list, ',')
+                      
+    let s:code_bgn = '^\s*'.g:autotype_syn_code_bgn
+    let s:code_end = '^\s*'.g:autotype_syn_code_end.'\s*$'
+    let s:code_vim = s:code_bgn. '\s*$'
+    let s:s.code = {'vim': s:code_vim}
+    let s:s.code_end = s:code_end
+    for code in s:code_list
+        let s:code_{code} = '^\s*'.g:autotype_syn_code_bgn
+                                \.'\s\+\c'.code.'\s*$'
+        let s:s.code[code] = s:code_{code}
+        if exists("g:autotype_code_syntax['".code."']")
+            let s:s.syntax[code] = g:autotype_code_syntax[code]
+        else
+            let s:s.syntax[code] = code
+        endif
+    endfor
+
+    fun! s:get_tempfile() "{{{
+        if !exists("s:tempfile")
+            let s:tempfile = tempname()
+        endif
+        return s:tempfile
+    endfun "}}}
+    call s:get_tempfile()
+    let s:temp_log = s:tempfile.".log"
+    let s:temp_err =  s:tempfile.".err"
+    let s:temp_return =  s:tempfile.".return"
 endfun "}}}
 "}}}
+
 " MAIN: "{{{
 fun! s:append(bang, str, ...) abort "{{{
 
@@ -230,7 +278,7 @@ fun! s:type_norm(line, idx) "{{{
     " We should reset them all when met one.
     if s:_lstrip == 1 || s:_rstrip == 1
         let idx = 1
-        let line = substitute(line, '^\s*', '','')
+        " let line = substitute(line, '^\s*', '','')
         let s:_lstrip = 0
         let s:_rstrip = 0
     endif
@@ -245,6 +293,7 @@ fun! s:type_norm(line, idx) "{{{
             else
                 call s:append('', char, g:autotype_sleep_char)
             endif
+            redraw
         endfor
     elseif g:autotype_skip_by == 'word'
         let words = split(line, '[[:space:]]\+\zs')
@@ -278,51 +327,6 @@ fun! s:type_cmd(cmd) "{{{
     call extend(s:_ctx , l:)
     redraw
     call s:sleep(g:autotype_sleep_cmd)
-endfun "}}}
-fun! s:exe_cmds(cmds, type) "{{{
-    " cmds is a list of lines
-    try
-        if a:type == 'vim'
-            call writefile([
-                        \'fun! s:_temp()',
-                        \'call extend(l:, g:_autotype_context)']
-                        \+ a:cmds +
-                        \['call extend(g:_autotype_context,l:)',
-                        \'endfun',
-                        \'call s:_temp()'], s:tempfile)
-            exe "so " s:tempfile
-        elseif a:type == 'python'
-            call writefile([
-                        \'import vim',
-                        \'_ = vim.bindeval("g:_autotype_context")']
-                        \+ a:cmds , s:tempfile)
-            exe "pyfile " s:tempfile
-        else
-            throw 'AUTOTYPE: Unknow Code Type.'
-        endif
-    catch /^Vim\%((\a\+)\)\=:E\|^AUTOTYPE:\|^Exception: AUTOTYPE:/	" catch all Vim errors and AutoType errors
-        call s:echo('!', 0, v:exception)
-        call s:echo('!', 0 ,"from line ".s:_ctx.__lnum__.": ".s:_ctx.__line__)
-        if g:autotype_debug == 1 | throw v:exception | endif
-        " break
-    endtry
-    
-    " NOTE: We can not :execute a 'for' or 'while' .
-    "       See ':h :exe'
-    " call extend(l:, s:_ctx)
-    " try
-    "     for cmd in a:cmds
-    "         " echom cmd
-    "         exe cmd
-    "     endfor
-    " catch /^Vim\%((\a\+)\)\=:E/	" catch all Vim errors
-    "     call s:echo("caught".v:exception,{'hl':'ErrorMsg'})
-    "     break
-    " endtry
-    " call extend(s:_ctx , l:)
-   
-    redraw
-    call s:sleep(g:autotype_sleep_word)
 endfun "}}}
 
 fun! s:type_var(var) "{{{
@@ -488,16 +492,24 @@ fun! s:type_line(line) "{{{
     let parts = s:parse_line(line)
     let _t = 0
 
+
     for p in parts
         if p['type']  == 'cmd'
+            " XXX Infact , check typed in cmd are 
+            " not predictable.
+            " So this will make Typing works wrong sometimes.
             call s:type_cmd(p['cmd'])
         endif
         if p['type']  == 'norm'
+            let str = substitute(p['str'], '\s', '_','g')
+            " let str = p['str']
             call s:type_norm(p['str'], p.idx)
+            " call s:type_norm(str, p.idx)
             let _t = 1
         endif
         if p['type']  == 'var'
             call s:type_var(p['var'])
+            let _t = 1
         endif
     endfor
     return _t
@@ -507,8 +519,8 @@ endfun "}}}
 fun! s:type_lines(lines) abort "{{{
     " lines are a list contain lines
     " Each line are split by " " and typed
-    let cmds = []
-    let cmd_mode = 0
+    let code_lines = []
+    let code_mode = 0
     let cmt_mode = 0
 
     
@@ -519,38 +531,39 @@ fun! s:type_lines(lines) abort "{{{
         let s:_ctx.__lnum__ = (i+1)
 
 
-        " Command Block
-        if (line =~ s:cs_bgn || line =~ s:csp_bgn ) 
-            \ && cmd_mode == 0 && cmt_mode != 1
-            let cmds = []
-            if line =~ s:csp_bgn
-                let cmd_type = 'python'
-            else
-                let cmd_type = 'vim'
+        " Code Block
+        if line =~ s:code_bgn && code_mode == 0 && cmt_mode != 1
+            let code_type = ''
+            for [code, ptn] in items(s:s['code'])
+                if line =~ ptn
+                    let code_type = code
+                    continue
+                endif
+            endfor
+            if code_type == ''
+                throw 'AUTOTYPE: Unknow Code Block Tag:line '.(i+1)
             endif
+            let code_lines = []
             let cmd_indent = matchstr(line, '^\s*')
-            let cmd_mode = 1
+            let code_mode = 1
             continue
         endif
         
-        " In fact they are the same...
-        " But put here as user defined may variant.
-        if ( line =~ s:cs_end || line =~ s:csp_end )
-            \&& cmd_mode == 1
-            call s:exe_cmds(cmds, cmd_type)
-            let cmd_mode = 0
+        if  line =~ s:code_end && code_mode == 1
+            call s:run_code(code_lines, code_type)
+            let code_mode = 0
             continue
         endif
 
-        if cmd_mode == 1
+        if code_mode == 1
             " remove indent for python block
             let line = substitute(line, '^'.cmd_indent, '','')
-            call add(cmds, line)
+            call add(code_lines, line)
             continue
         endif
 
         " Comments Block
-        if line =~ s:cm_bgn && cmt_mode == 0 && cmd_mode != 1
+        if line =~ s:cm_bgn && cmt_mode == 0 && code_mode != 1
             " A one line comment
             if line =~ s:cm_end
                 continue
@@ -600,6 +613,11 @@ fun! s:type_lines(lines) abort "{{{
             " To act as Human input,
             " A line typed nothing we must INSERT the '\r'
             " Otherwise it will after one existing char on current line.
+            " 123456789
+            " aaaaIaaaa
+            " 
+            " As we are simulating Insert in Normal mode.
+            "
             "
             if _typed
                 call s:append('', "\r", g:autotype_sleep_word)
@@ -779,7 +797,8 @@ fun! autotype#type_file(f) "{{{
         let s:_rstrip = 0
         call s:type_lines(readfile(f))
 
-    catch /^Vim:Interrupt$/	" catch interrupts (CTRL-C)
+    catch /^\(Vim\|AUTOTYPE\):Interrupt$/	
+        " catch interrupts (CTRL-C)
         call s:echo("", -1,
                     \{'arg': "Typing Stopped by user.",
                     \'hl': "WarningMsg"})
@@ -794,6 +813,209 @@ fun! autotype#type_file(f) "{{{
     unlet! g:autotype_last_context
     let g:autotype_last_context = copy(s:_ctx)
     unlet! s:_ctx
+endfun "}}}
+
+fun! s:run_code(lines, type) "{{{
+    try
+        if index(s:code_list, a:type) != -1
+            let ctx = autotype#{a:type}_lines(a:lines, s:_ctx)
+            if type(ctx) == type({})
+                call extend(s:_ctx, ctx)
+            endif
+        else
+            throw 'AUTOTYPE: Unknow Code Type For Execute'
+        endif
+    catch /^Vim:Interrupt$/	" catch interrupts (CTRL-C)
+        throw 'AUTOTYPE:Interrupt'
+    catch /.*/
+        call s:echo('!', -1, v:exception)
+        " call s:echo('!', 0 ,v:throwpoint)
+        call s:echo('!', -1 ,"from ".s:_ctx.__sourcing__." line ".s:_ctx.__lnum__.": ".s:_ctx.__line__)
+        if g:autotype_debug == 1 | throw v:exception | endif
+    endtry
+   
+    redraw
+    call s:sleep(g:autotype_sleep_word)
+endfun "}}}
+fun! autotype#vim_lines(lines, context) "{{{
+    if exists("*g:autotype_code_runner['vim']")
+        return g:autotype_code_runner.vim(a:lines, a:context)
+    else
+        if exists("g:autotype_code_cmd['vim']")
+            let cmd = g:autotype_code_cmd['vim']
+            call writefile([a:lines , s:tempfile)
+            exe cmd . "  " . s:tempfile
+        else
+            let g:_autotype._context = a:context
+            " hook 'l:' to local context
+            call writefile([
+                        \'fun! s:_temp()',
+                        \'call extend(l:, g:_autotype._context)']
+                        \+ a:lines +
+                        \['call extend(g:_autotype._context,l:)',
+                        \'endfun',
+                        \'call s:_temp()'], s:tempfile)
+            exe "so ".s:tempfile
+            return g:_autotype._context
+        endif
+    endif
+endfun "}}}
+fun! autotype#shell_lines(lines, context) "{{{
+    if exists("*g:autotype_code_runner['shell']")
+        return g:autotype_code_runner.shell(a:lines, a:context)
+    else
+        if exists("g:autotype_code_cmd['shell']")
+            let cmd = g:autotype_code_cmd['shell']
+            call writefile( a:lines , s:tempfile)
+            exe cmd . "  " . s:tempfile
+        else
+            for line in a:lines
+                exe "!".line
+            endfor
+        else
+            throw 'AUTOTYPE: No shell interpreter found'
+        endif
+        return 0
+    endif
+endfun "}}}
+fun! autotype#python_lines(lines, context) "{{{
+    if exists("*g:autotype_code_runner['python']")
+        return g:autotype_code_runner.python(a:lines, a:context)
+    else
+        let l:context = a:context
+        if exists("g:autotype_code_cmd['python']")
+            let cmd = g:autotype_code_cmd['python']
+            call writefile([a:lines , s:tempfile)
+            exe cmd . "  " . s:tempfile
+        elseif has('python')
+            " Hook to local context.
+            call writefile([
+                        \'def _temp():',
+                        \'  import vim',
+                        \'  _ = vim.bindeval("l:context")']
+                        \+ map(a:lines, '"  ".v:val') 
+                        \+['_temp()'], s:tempfile)
+            exe 'pyfile ' s:tempfile
+        else
+            throw 'AUTOTYPE: No python interpreter found'
+        endif
+        return l:context
+    endif
+endfun "}}}
+fun! autotype#python3_lines(lines, context) "{{{
+    if exists("*g:autotype_code_runner['python3']")
+        return g:autotype_code_runner.python3(a:lines, a:context)
+    else
+        let l:context = a:context
+
+        if exists("g:autotype_code_cmd['python3']")
+            let cmd = g:autotype_code_cmd['python3']
+            call writefile([a:lines , s:tempfile)
+            exe cmd . "  " . s:tempfile
+        elseif has('python3')
+            call writefile([
+                        \'def _temp():',
+                        \'  import vim',
+                        \'  _ = vim.bindeval("l:context")']
+                        \+ map(a:lines, '"  ".v:val') 
+                        \+['_temp()'], s:tempfile)
+            exe 'py3file ' s:tempfile
+        else
+            throw 'AUTOTYPE: No python3 interpreter found'
+        endif
+        return l:context
+    endif
+endfun "}}}
+fun! autotype#ruby_lines(lines, context) "{{{
+    if exists("*g:autotype_code_runner['ruby']")
+        return g:autotype_code_runner.ruby(a:lines, a:context)
+    else
+        if exists("g:autotype_code_cmd['ruby']")
+            let cmd = g:autotype_code_cmd['ruby']
+        elseif has('ruby')
+            let cmd = 'rubyfile'
+        else
+            throw 'AUTOTYPE: No ruby interpreter found'
+        endif
+        call writefile( a:lines , s:tempfile)
+        exe cmd . "  ".s:tempfile
+        return 0
+    endif
+endfun "}}}
+fun! autotype#perl_lines(lines, context) "{{{
+    if exists("*g:autotype_code_runner['perl']")
+        return g:autotype_code_runner.perl(a:lines, a:context)
+    else
+        if exists("g:autotype_code_cmd['perl']")
+            let cmd = g:autotype_code_cmd['perl']
+            call writefile( a:lines , s:tempfile)
+            exe cmd . "  " . s:tempfile
+        elseif has('perl')
+            for line in a:lines
+                if line =~ '^\s*$'
+                    continue
+                endif
+                exe "perl ".line
+            endfor
+        else
+            throw 'AUTOTYPE: No perl interpreter found'
+        endif
+        return 0
+    endif
+endfun "}}}
+fun! autotype#lua_lines(lines, context) "{{{
+    if exists("*g:autotype_code_runner['lua']")
+        return g:autotype_code_runner.lua(a:lines, a:context)
+    else
+        if exists("g:autotype_code_cmd['lua']")
+            let cmd = g:autotype_code_cmd['lua']
+        elseif has('lua')
+            let cmd = 'luafile'
+        else
+            throw 'AUTOTYPE: No lua interpreter found'
+        endif
+        call writefile( a:lines , s:tempfile)
+        exe cmd . "  " . s:tempfile
+        return 0
+    endif
+endfun "}}}
+fun! autotype#javascript_lines(lines, context) "{{{
+    if exists("*g:autotype_code_runner['javascript']")
+        return g:autotype_code_runner.javascript(a:lines,
+                                    \ a:context)
+    else
+        if exists("g:autotype_code_cmd['javascript']")
+            let jscmd = g:autotype_code_cmd['javascript']
+        elseif executable('node')
+            let jscmd = '!node'
+        elseif executable('/System/Library/Frameworks/JavaScriptCore.framework/Resources/jsc')
+            let jscmd = '!/System/Library/Frameworks/JavaScriptCore.framework/Resources/jsc'
+        elseif executable('js')
+            let jscmd = '!js'
+        else
+            throw 'AUTOTYPE: No javascript interpreter found'
+        endif
+
+        let json = s:json_encode(a:context)
+
+        let lines = ['(function(__){ ']+a:lines+[' require("fs").writeFileSync("'.s:temp_return.'",JSON.stringify(__));return __;}('.json.'))']
+        call writefile( lines , s:tempfile)
+        exe jscmd. " ".s:tempfile . ' 1>'.s:temp_log. ' 2>'.s:temp_err
+
+
+        for line in readfile(s:temp_log)
+            echom line
+        endfor
+        let err =  readfile(s:temp_err)
+        if !empty(err)
+            for line in err
+                call s:echo('!',-1,line)
+            endfor
+            throw 'AUTOTYPE: Javascript throws an error'
+        endif
+
+        return s:json_decode(join(readfile(s:temp_return),''))
+    endif
 endfun "}}}
 
 fun! autotype#include(f) "{{{
@@ -846,6 +1068,7 @@ fun! autotype#insert(bang, line) "{{{
     exe 'call s:insert("'.a:bang.'","'.a:line.'")'
 endfun "}}}
 
+
 fun! autotype#echo(bang, count, arg) "{{{
     call s:echo(a:bang, a:count, a:arg)
 endfun "}}}
@@ -862,8 +1085,8 @@ fun! autotype#atp_spd(str) "{{{
     if a:str != ''
         let g:autotype_speed = a:str
     else
-        let _l = split('turtle,mankind,swift,lighting', ',')
-        let _k = split('2,30,400,30000', ',')
+        let _l = split('turtle,mankind,swift,storm,lighting', ',')
+        let _k = split('2,30,120,600,3000', ',')
         let _n = map(range(len(_l)), 'printf(" %-12s",_l[v:val])."| "._k[v:val]')
         let k = inputlist(['[AutoType] Choose a Speed, Current:'.g:autotype_speed.'|'.s:speed]+_n)
         if k != 0

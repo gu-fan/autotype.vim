@@ -1,26 +1,26 @@
 call autotype#init()
 
 let s:s = g:_autotype.syn
-
-
 let s:path = join([$VIMRUNTIME, split(&rtp,',')[0]],',')
-for code in  ['vim', 'python']
-    let paths = split(globpath(s:path, "syntax/".code.".vim"), '\n')
+for [code, ptn] in  items(s:s.code)
+    let paths = split(globpath(s:path, "syntax/".s:s['syntax'][code].".vim"), '\n')
 
     if !empty(paths) 
-        " if !exists("b:syntax_loaded") || b:syntax_loaded == 0
-            let code_path = fnameescape(paths[0])
-            unlet! b:current_syntax
-            exe "syn include @autotype_".code." ".code_path
-            exe "syn region autotypeCode_".code." matchgroup=autotypeCodePair_".code." start='" .s:s['code_'.code.'_bgn'] 
-                        \."' end='". s:s['code_'.code.'_end']
-                        \."' contains=@autotype_".code." keepend"
-            unlet code_path
-            " let b:syntax_loaded = 1
-        " endif
+        let code_path = fnameescape(paths[0])
+        unlet! b:current_syntax
+        exe "syn include @autotype_".code." ".code_path
+        exe "syn region autotypeCode_".code
+                    \." matchgroup=autotypeCodePair"
+                    \." start='" .ptn
+                    \."' end='". s:s['code_end']
+                    \."' contains=@autotype_".code." keepend"
+        unlet code_path
     else 
-        exe "syn region autotypeCode_".code." matchgroup=autotypeCodePair_".code." start='" .s:s['code_'.code.'_bgn']  
-                    \."' end='". s:s['code_'.code.'_end']. "'"
+        exe "syn region autotypeCode_".code
+                    \." matchgroup=autotypeCodePair"
+                    \." start='" .ptn
+                    \."' end='". s:s['code_end']
+                    \. "'"
     endif
 endfor
 
@@ -45,8 +45,7 @@ hi def link autotypeCmt Comment
 hi def link autotypeCmtPair Comment
 hi def link autotypeCode_vim String
 hi def link autotypeCode_python String
-hi def link autotypeCodePair_vim Typedef
-hi def link autotypeCodePair_python Keyword
+hi def link autotypeCodePair Keyword
 hi def link autotypeVar Number
 hi def link autotypeVarPair Include
 hi def link autotypeOnce Keyword

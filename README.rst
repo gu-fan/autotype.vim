@@ -80,8 +80,8 @@ Syntax overview::
     Command Tag:
     {% ECHO 'GO START' | NORM! 0  | TYPE 'SOMETHING' | NORM! $ %}
 
-    Command Blocks:
-    {@
+    Code Blocks:
+    {@ vim
         let a = 10
         " Insert line number for last 10 lines
         exe 'norm! '.a.'k'
@@ -178,6 +178,65 @@ Syntax overview::
 
       File is at ``autotype/position.autotype``
 
+Code Block
+----------
+
+Code blocks are codes between ``{@ and @}`` tag.
+The tag should be in a single line.
+
+The code name must follow by the starting tag.
+like ``{@ vim`` or ``{@ python``
+
+The local context are supported for following code.
+    Vim: works as using local variable. eg. ``__file__``
+
+    Python: access from dict ``_``. e.g. ``_['__file__']``
+
+    javascript: access from object ``__``. e.g. ``__.__file__``
+
+g:autotype_code_list
+    The code can be used in code blocks
+
+    default is 'vim,sh,python,python3,ruby,perl,lua,javascript'
+
+    if you adding a new code type.
+
+    You should define it's runner and syntax.
+
+    See below.
+
+g:autotype_code_syntax
+    A dict for the code's vim syntax file to highlight in vim.
+
+    default is 'python3', 'python'
+
+g:autotype_code_cmd
+    The file intepreter command for the code block.
+
+    default is {}.
+
+    Then the default codes will be use predefined cmds.
+
+    like 'pyfile' or 'rubyfile' or '!node'.
+
+    You can set it to {'python': '!python2'} to use the python2
+    files.
+
+g:autotype_code_runner
+
+    A dict contain functions for you to intepreter the codes.
+
+    @params: 
+        lines: a list of string contains the lines
+
+        context: a dict of local context
+
+    @returns
+        context: returns the local context if needed.
+
+    to print things, you can use ``echom``
+    to print errors, you can just throw them
+
 Variables
 ---------
 
@@ -196,6 +255,10 @@ There are some predefined context variables.
         The file name that running ``AutoType`` command
     __source__
         The autotype source file. 
+    __sourcing__
+        The autotype file currently in sourcing.
+    __include__
+        A list of included autotype files.
     __arg__
         Argument passed to ``AutoType``
     __line__
@@ -204,8 +267,6 @@ There are some predefined context variables.
         Executing line number
     __time__
         Start time
-    __exec_time__
-        Total executed time (Not avaliable during executing)
     __speed__
         The executing speed
 
@@ -367,12 +428,14 @@ g:autotype_speed
 
     Slow as turtle? use '2'.
 
-    Fast as swift? use '400'.
+    Fast as swift? use '120'.
 
-    Blazing lighting? use '30000' or more.
+    Faster as storm? use '600'.
+
+    Blazing lighting? use '3000' or more.
 
     You can set it with one of 
-    ``turtle,mankind,swift,lighting``,
+    ``turtle,mankind,swift,storm,lighting``,
 
     Then it's at the relevent speed.
 
@@ -454,6 +517,7 @@ g:autotype_default_char
 g:autotype_default_hl
     The '[char]' part's highlight for ``ECHO|BLINK``
 
+
 ISSUES
 ======
 
@@ -485,10 +549,12 @@ You can find one thing and contribute to it at github_
     5. [X] 2014-08-31 Add ``INCLUDE`` TAG
     6. [X] 2014-08-31 Add Striping Syntax like ``{%- and -%}``.
     7. [X] 2014-08-31 Make typing output like typing in insert mode.
-    7. [X] 2014-09-01 Add Python Code Block support
-    8. Make more autotype sources.
-    9. Make it more stable and useful.
-    10. Helping others.
+    8. [X] 2014-09-01 Add Python Code Block support
+    9. [X] 2014-09-01 Add Ruby/Javascript/Perl/Lua/... Code Block
+    10. [o] Add Ruby/Javascript/Perl/Lua/... Context support
+    11. Make more autotype sources.
+    12. Make it more stable and useful.
+    13. Helping others.
 
 
 .. _github: https://github.com/Rykka/autotype.vim

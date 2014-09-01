@@ -1,0 +1,39 @@
+{%- new -%}
+{% let a = 3 %}
+{@ vim
+    echom 'Vim:This is vim'
+    echom a
+@}
+{@ python
+print 'Python:Hello vim'
+# You can access local variables with _
+print _['a']
+@}
+{@ python3
+print('Python3: Hello vim')
+print _['a']
+@}
+{@ ruby
+
+print('Ruby:Hello vim')
+
+@}
+{@ lua 
+
+print('Lua:Hello vim')
+
+@}
+{@ perl
+
+VIM::Msg("Perl:Hello vim")
+
+@}
+{@ javascript
+console.log('Javascript:hello vim');
+// You can access the local context in javascript by __
+__.__speed__ = 3333;
+var a=3;
+console.log(a);
+@}
+{{ __speed__ }}
+{%- bw! -%}

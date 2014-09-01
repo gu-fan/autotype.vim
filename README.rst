@@ -1,7 +1,7 @@
 Autotype.vim
 ============
 
-:version: 0.10.7
+:version: 0.10.8
 
 ..
 
@@ -10,7 +10,7 @@ Autotype.vim
     -- autotype.vim
 
 
-An auto typing engine for vim.
+An auto typing machine for vim.
 
 
 .. figure:: https://github.com/Rykka/github_things/raw/master/image/autotype.gif
@@ -129,7 +129,7 @@ Syntax overview::
 
       **BUT IT IS THE DESIRED BEHAVIOR**
 
-      *AS THIS IS AN AUTOTYPE ENGINE, NOT A TEMPLATE ENGINE.*
+      *AS THIS IS AN AUTOTYPE MACHINE, NOT A TEMPLATE ENGINE.*
 
       So you must always take care what is the correct position
       after a moving command. 

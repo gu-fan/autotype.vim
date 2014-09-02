@@ -37,7 +37,7 @@ exe "syn match autotypeVarPair '". s:s.var_p
 exe "syn match autotypeVar '". s:s.var
             \."' contains=autotypeVarPair"
 
-exe "syn match autotypeOnce '". s:s.once ."'"
+" exe "syn match autotypeOnce '". s:s.once ."'"
 
 hi def link autotypeCmd Statement
 hi def link autotypeCmdPair Delimiter
@@ -48,4 +48,4 @@ hi def link autotypeCode_python String
 hi def link autotypeCodePair Keyword
 hi def link autotypeVar Number
 hi def link autotypeVarPair Include
-hi def link autotypeOnce Keyword
+" hi def link autotypeOnce Keyword

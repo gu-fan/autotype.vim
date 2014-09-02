@@ -64,7 +64,7 @@ ECHO AND BLINK
 Move around
     Insert ``HELLO`` Before ``WORLD``.
 
-    WORLD {% ECHO 'GO ^' | NORM ^ | INSERT 'HELLO ' | NORM $ %}
+    WORLD {% ECHO 'GO ^' | NORM ^ | INSERT 'HELLO ' %}
 
 Striping new line
     Use ``-`` in command tags to strip newlines.
@@ -98,9 +98,11 @@ Command Blocks
                 INSERT! '     LINE '.printf('%-3d',(i+1)).':'
                 norm! j
             endfor
-            norm! G$
             ECHO 'DONE'
         @}
+
+        By default, You will move back to end of document 
+        after each command.
     
     Python can be used in pyhon blocks
     {@ python
@@ -114,18 +116,7 @@ Command Blocks
 
     Os name: {{ os_name }}
 
-Simple commands 
-    Simple command are like ``!^_xxx``
-
-        Copy This Line ``!^_yy`` ^_yy
-
-        Paste here ``!^_p`` ^_p$
-
-    It will consume all following char 
-    till a space or end of line.
-    
-    So to insert a space after a simple command.
-    You must input 2 spaces.
+Simple commands (REMOVED!)
 
 Variables
 ---------

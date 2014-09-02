@@ -1,6 +1,7 @@
 AUTOTYPE
 ========
 
+:0.10.9: REMOVE simple Command Tag, Automove back after each command.
 :0.10.8: Add Ruby/Lua/Javascript/... Code Block.
          Add context support for javascript.
 :0.10.7: Add Python Code Block.

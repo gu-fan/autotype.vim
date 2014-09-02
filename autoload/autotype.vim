@@ -96,6 +96,7 @@ fun! autotype#init() "{{{
         \ ["g:autotype_file_directory", ''],
         \ ["g:autotype_global_context", {}],
         \ ["g:autotype_debug", 0],
+        \ ["g:autotype_moveback", 1],
         \ ["g:autotype_default_char", 'AUTOTYPE'],
         \ ["g:autotype_default_hl", 'ModeMsg'],
         \ ["g:autotype_code_list", 'vim,sh,python,python3,ruby,perl,lua,javascript'],
@@ -128,7 +129,6 @@ fun! autotype#init() "{{{
             \ ["g:autotype_syn_var_end",  '}}'],
             \ ["g:autotype_syn_code_bgn", '{@'],
             \ ["g:autotype_syn_code_end", '@}'],
-            \ ["g:autotype_syn_cmd_once", '^_'],
             \ ] 
     else
         let syn_opt = [
@@ -140,7 +140,6 @@ fun! autotype#init() "{{{
             \ ["g:autotype_syn_var_end", '\^[}]'],
             \ ["g:autotype_syn_code_bgn", '\^\[\^\['],
             \ ["g:autotype_syn_code_end", '\^\]\^\]'],
-            \ ["g:autotype_syn_cmd_once", '\^_'],
             \ ] 
     endif
     
@@ -167,7 +166,7 @@ fun! autotype#init() "{{{
     let s:end =  g:autotype_syn_cmd_end
     let s:c_bgn = '!\@<!'.g:autotype_syn_cmd_bgn.'\(-\=\)'
     let s:c_end = '!\@<!\(-\=\)'. g:autotype_syn_cmd_end
-    let s:c_once = '!\@<!'.g:autotype_syn_cmd_once
+    " let s:c_once = '!\@<!'.g:autotype_syn_cmd_once
     let s:v_bgn = '!\@<!'.g:autotype_syn_var_bgn
     let s:v_end = '!\@<!'.g:autotype_syn_var_end
     let s:cm_bgn = '^\s*!\@<!'.g:autotype_syn_cmt_bgn
@@ -175,7 +174,7 @@ fun! autotype#init() "{{{
 
 
     " NOTE: include the \s in s:once to ignore input suffix whitespace
-    let s:ptn_once = s:c_once .'\([^[:space:]]\+\)\(\s\|$\)'
+    " let s:ptn_once = s:c_once .'\([^[:space:]]\+\)\(\s\|$\)'
     let s:ptn_cmd = s:c_bgn.'\(.\{-}\)'.s:c_end
     let s:ptn_var = s:v_bgn.'\(.\{-}\)'.s:v_end
     " The pattern for strip '\r'
@@ -185,7 +184,7 @@ fun! autotype#init() "{{{
     " Syntax usage
     let g:_autotype = {'syn':{'syntax':{} }}
     let s:s = g:_autotype.syn
-    let s:s.once = s:ptn_once
+    " let s:s.once = s:ptn_once
     let s:s.var_p = s:v_bgn.'\|'.s:v_end
     let s:s.var = s:v_bgn.'.\{-}'.s:v_end
     let s:s.cmd_p = s:c_bgn.'\|'.s:c_end
@@ -278,7 +277,7 @@ fun! s:type_norm(line, idx) "{{{
     " We should reset them all when met one.
     if s:_lstrip == 1 || s:_rstrip == 1
         let idx = 1
-        " let line = substitute(line, '^\s*', '','')
+        let line = substitute(line, '^\s*', '','')
         let s:_lstrip = 0
         let s:_rstrip = 0
     endif
@@ -319,6 +318,9 @@ fun! s:type_cmd(cmd) "{{{
     call extend(l:, s:_ctx)
     try
         exe a:cmd
+        if g:autotype_moveback
+            norm! G$
+        endif
     catch /^Vim\%((\a\+)\)\=:E\|^AUTOTYPE:/	" catch all Vim errors and AutoType errors
         call s:echo('!', 0, v:exception)
         call s:echo('!', 0 ,"from line ".s:_ctx.__lnum__.": ".s:_ctx.__line__)
@@ -362,27 +364,27 @@ fun! s:parse_line(line) "{{{
     let line = a:line
     " NOTE: Use statemachine?
     
-    while line =~ s:ptn_once || line =~ s:ptn_cmd || line =~ s:ptn_var
+    while line =~ s:ptn_cmd || line =~ s:ptn_var
 
-        " " Make ^_ working
-        if line =~ s:ptn_once
-            " >>> let line = '34^_567 8910' 
-            " >>> let _list = matchlist(line, s:c_once.'\(\w\+\)\%(\s\|$\)\ze')
-            " >>> echo _list[1]
-            " 567
-            let _list = matchlist(line, s:ptn_once)
-            let idx = match(line, s:ptn_once)
-            let end = matchend(line, s:ptn_once)
-            " replace the pattern to ignore further catch
-            " NOTE: when ptn_once is at EOL, no ! is added at end
-            let trim_cmd = substitute(_list[1],'^\s*\|\s*$','','g')
-            let line = substitute(line, s:ptn_once, '@@\1\2', '')
-            call add(parts, 
-                    \ {'type': 'cmd',
-                    \ 'str': _list[0],
-                    \ 'cmd': 'norm '.trim_cmd,
-                    \ 'idx':idx,'end':end})
-        endif
+        " " " Make ^_ working
+        " if line =~ s:ptn_once
+        "     " >>> let line = '34^_567 8910' 
+        "     " >>> let _list = matchlist(line, s:c_once.'\(\w\+\)\%(\s\|$\)\ze')
+        "     " >>> echo _list[1]
+        "     " 567
+        "     let _list = matchlist(line, s:ptn_once)
+        "     let idx = match(line, s:ptn_once)
+        "     let end = matchend(line, s:ptn_once)
+        "     " replace the pattern to ignore further catch
+        "     " NOTE: when ptn_once is at EOL, no ! is added at end
+        "     let trim_cmd = substitute(_list[1],'^\s*\|\s*$','','g')
+        "     let line = substitute(line, s:ptn_once, '@@\1\2', '')
+        "     call add(parts, 
+        "             \ {'type': 'cmd',
+        "             \ 'str': _list[0],
+        "             \ 'cmd': 'norm '.trim_cmd,
+        "             \ 'idx':idx,'end':end})
+        " endif
         
         if line =~  s:ptn_cmd
             let _list = matchlist(line, s:ptn_cmd)
@@ -819,6 +821,9 @@ fun! s:run_code(lines, type) "{{{
     try
         if index(s:code_list, a:type) != -1
             let ctx = autotype#{a:type}_lines(a:lines, s:_ctx)
+            if g:autotype_moveback
+                norm! G$
+            endif
             if type(ctx) == type({})
                 call extend(s:_ctx, ctx)
             endif

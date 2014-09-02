@@ -110,32 +110,16 @@ Syntax overview::
         Eval {{ range(10) + [1, 2, 3] }}
         Context variable: {{ __file__ }}
 
-    Simple Command Tag: 
-    (^_xxx follow with a space or end of line)
-
-    Yank ^_yy
-
-    Paste and go end of line ^_p$
+    Simple Command Tag: (!REMOVED)
 
 :Warning: 
 
       **Work With Moving Commands**
 
       When using moving command like 
-      ``{{% norm 0 %}}`` or ``^_0``
+      ``{{% norm 0 %}}`` or Code Blocks.
 
-      Following lines will be typed **FROM** that position.
-      This will make output totally different from autotype source.
-
-      **BUT IT IS THE DESIRED BEHAVIOR**
-
-      *AS THIS IS AN AUTOTYPE MACHINE, NOT A TEMPLATE ENGINE.*
-
-      So you must always take care what is the correct position
-      after a moving command. 
-
-      (Luckily, you can test by typing it directly.)
-
+      by default, you will move back to doucment's end after the command.
 
       e.g.:
 
@@ -143,19 +127,19 @@ Syntax overview::
 
           {# WRONG ONE #}
           THE {% NORM 0 | INSERT 'THIS' %} IS
-          CORRECT
+          WRONG
           POSITION
 
       will produce::
 
-          THIS IS
-          CORRECT
+          THISTHE IS
+          WRONG
           POSITIONTHE 
 
-      You need to add a movement back to make it work::
+      You need to INSERT all needed for it::
 
           {# CORRECT ONE #}
-          THE {% NORM 0 | INSERT 'THIS' %} IS {% norm $ %}
+          THE {% NORM 0 | INSERT 'THIS IS ' %}
           CORRECT
           POSITION
 
@@ -165,14 +149,6 @@ Syntax overview::
           CORRECT
           POSITION
 
-      You can use the simple command tag::
-
-          {# SIMPLE ONE 
-             Note: the command will consume one space
-              So we must type 2 space here.  #}
-          THE ^_0iTHIS  IS ^_$
-          CORRECT
-          POSITION
 
       See demo with ``AutoType position``.
 
@@ -206,21 +182,23 @@ g:autotype_code_list
     See below.
 
 g:autotype_code_syntax
-    A dict for the code's vim syntax file to highlight in vim.
+    A dict to get correct vim syntax file to highlight code blocks.
 
-    default is 'python3', 'python'
+    default is ``{ 'python3': 'python' }``
 
 g:autotype_code_cmd
     The file intepreter command for the code block.
 
-    default is {}.
+    default is {}.THen the default cmd will be used.
+    Like 'pyfile' or 'rubyfile' or '!node'.
 
-    Then the default codes will be use predefined cmds.
+    You can set it to {'python': '!pypy'} for 'python' code block 
+    to use the ``!pypy`` cmd.
 
-    like 'pyfile' or 'rubyfile' or '!node'.
+    But to include context support. you should write code_runner 
+    youself.
 
-    You can set it to {'python': '!python2'} to use the python2
-    files.
+    See below.
 
 g:autotype_code_runner
 
@@ -441,6 +419,11 @@ g:autotype_speed
 
     ``:AtpSpd`` can be used as a quick speed setup.
 
+g:autotype_moveback
+    moveback (to end of doc.) after every command tag.
+
+    default is `1`, set it to 0 to disable it.
+
 g:autotype_syntax_type
     Default is 'jinja'.
         1. Command tag is '{% cmds %}'
@@ -448,8 +431,7 @@ g:autotype_syntax_type
         3. Comment tag is '{# var #}'
         4. Command block is '{@' and '@}',
            both in single line
-        5. Inline Command is ``^_cmds``
-        6. To prevent exec of tags, add a '!' before the tag.
+        5. To prevent exec of tags, add a '!' before the tag.
 
     Then the 'autotype'
         1. Command tag is '^[ cmds ^]'
@@ -457,7 +439,6 @@ g:autotype_syntax_type
         3. Variable tag is '^{ var ^}'
         4. Command block is '^[^[' and '^]^]',
            both in single line
-        5. Inline Command is ``^_cmds``
 
     You can define your own tag syntax if needed.
     Following list of options can be changed::
@@ -470,7 +451,6 @@ g:autotype_syntax_type
             ["g:autotype_syn_cmt_end",  '#}'],
             ["g:autotype_syn_var_bgn",  '{{'],
             ["g:autotype_syn_var_end",  '}}'],
-            ["g:autotype_syn_cmd_once", '^_'],
 
     :NOTE: ``g:autotype_syntax_type`` **SHOULD** be set
             with a name other than 'jinja' or 'autotype'
@@ -552,6 +532,7 @@ You can find one thing and contribute to it at github_
     8. [X] 2014-09-01 Add Python Code Block support
     9. [X] 2014-09-01 Add Ruby/Javascript/Perl/Lua/... Code Block
     10. [o] Add Ruby/Javascript/Perl/Lua/... Context support
+    10. [X] 2014-09-02 REMOVE simple Command Tag, Automove back after each command.
     11. Make more autotype sources.
     12. Make it more stable and useful.
     13. Helping others.
